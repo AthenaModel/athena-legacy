@@ -1,36 +1,25 @@
-<html>
-<head>
-<title><<project>> <<version>>: <<longproject>></title>
-<style>
-<<standardstyle>>
-</style>
-</head>
-
-<body>
-<<banner>>
+<document "Athena Documentation">
 
 <h2>Modeling Documents</h2>
 
 <ul>
-  <li> Athena User's Guide (<a href="dev/aug.docx">MS Word docx</a>)
-  <li> Athena Analyst's Guide (<a href="dev/aag.docx">MS Word docx</a>)
-  <li> Athena Rules Document (<a href="dev/rules.pptx">PowerPoint pptx</a>)
-  <li> Mars Analyst's Guide (<a href="../mars/docs/dev/mag.docx">MS
-  Word docx</a>)
+  <li> Athena User's Guide (<link "aug.docx" "MS Word docx">)
+  <li> Athena Analyst's Guide (<link "aag.docx" "MS Word docx">)
+  <li> Athena Rules Document (<link "rules.pptx" "PowerPoint pptx">)
+  <li> Mars Analyst's Guide (<link "mag.docx" "MS Word docx">)
 </ul>
 
 <h2>Software Notes</h2>
 
 <ul>
-  <li> <<xref athena(1)>>: Command-line syntax for the Athena simulation.
-  <li> <<xref athena_pbs(1)>>: Athena on a PBS cluster.
-  <li> <a href="build_notes.html">Build Notes</a>: Details of each
+  <li> <xref athena(1)>: Command-line syntax for the Athena simulation.
+  <li> <link "build_notes.html" "Build Notes">: Details of each
        Athena build.
 </ul>
 
 <h2>Copyright</h2>
 
-Copyright 2008-<<clock format [clock seconds] -format %Y>>,
+Copyright 2008-<clock format [clock seconds] -format %Y>,
 by the California Institute of Technology. ALL
 RIGHTS RESERVED. United States Government Sponsorship acknowledged. Any
 commercial use must be negotiated with the Office of Technology Transfer
@@ -43,13 +32,6 @@ regulations.  User has the responsibility to obtain export licenses, or
 other export authority as may be required before exporting such
 information to foreign countries or providing access to foreign persons.<p>
 
-<hr>
-
-<address><a href="mailto:William.H.Duquette@jpl.nasa.gov">William.H.Duquette@jpl.nasa.gov</a></address>
-</body>
-</html>
-
-
-
+</document>
 
 

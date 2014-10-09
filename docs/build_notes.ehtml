@@ -1,13 +1,4 @@
-<html>
-<head>
-<title><<project>> <<version>>: <<longproject>></title>
-<style>
-<<standardstyle>>
-</style>
-</head>
-
-<body>
-<<banner>>
+<document "Athena Build Notes">
 
 <h2>Build Notes</h2>
 
@@ -159,7 +150,7 @@ new build be made. Here are the fixes:<p>
 <li> Bug 4433: activity.*.coverage help pages mention "active personnel"
 <li> Bug 4438: CMO needs to be removed from documentation
 <li> Bug 4446: Gini coefficient typos
-<li> Bug 4531: nbcoop.<g> map fill bgerror
+<li> Bug 4531: nbcoop.<lb>g<rb> map fill bgerror
 <li> Bug 4553: User is unable to edit the list of groups in Demonstration event 
 </ul><p>
 
@@ -177,7 +168,7 @@ demonstration occurring in Athena.<p>
   <li> Bug 4552: autogen assign returns error
   <li> Bug 4484: Physical/EnSits tab should be renamed
   <li> Bug 4485: Executive commands list is out of order
-  <li> Bug 4531: nbcoop.<g> map fill bgerror
+  <li> Bug 4531: nbcoop.<lb>g<rb> map fill bgerror
   <li> Bug 4541: NON_SA_IN CIVGROUPS gofer help page is inconsistent
   <li> Bug 4551: athena_ingest(1): DEMO sim event 
 </ul><p>
@@ -522,7 +513,7 @@ types and some cleanup of the GUI.  Many bug fixes in other areas, too.<p>
 <li> Bug 4283: athena(1): move manufacturing infrastructure detail browser pages into their own category
 <li> Bug 4284: athena(1): Actors should optionally have maintenance free infrastructure.
 <li> Bug 4287: TACTIC:MAINTAIN help page inconsistencies
-<li> Bug 4288: Manufacturing Infrastructure table on my://app/nbhood/<nbhood>
+<li> Bug 4288: Manufacturing Infrastructure table on my://app/nbhood/<lb>nbhood<rb>
 <li> Bug 4289: Infrastructure should add up to QD.goods on calibrated view
 <li> Bug 4295: athena(1): implement ATTRIT tactic to replace ATTRIT:NBHOOD and ATTRIT:GROUP
 <li> Bug 4305: athena(1): Implement Mark II BUILD tactic
@@ -766,11 +757,7 @@ an enhancement to how Athena produces a bgerror.<p>
 This is the initial 6.0.x baseline; it is based on the same code as
 Athena 5.1.0.<p>
 
-<hr>
-
-<address><a href="mailto:William.H.Duquette@jpl.nasa.gov">William.H.Duquette@jpl.nasa.gov</a></address>
-</body>
-</html>
+</document>
 
 
 

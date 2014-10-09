@@ -1,61 +1,57 @@
-<html>
-<head>
-<title><<project>> <<version>>: <<longproject>></title>
-<style>
-<<standardstyle>>
-</style>
-</head>
-
-<body>
-<<banner>>
+<document "Athena Document Tree">
 
 <h2>Start Here</h2>
 
 <ul>
-  <li> <<xref athena(1)>>: The Athena simulation.
-  <li> <a href="build_notes.html">Build Notes</a>: Details of each
+  <li> <xref athena(1)>: The Athena simulation.
+  <li> <link "build_notes.html" "Build Notes">: Details of each
        Athena build.
-  <li> <a href="dev/arch.html">Architecture</a>
-  <li> <a href="dev/cm.html">CM Plan</a>
-  <li> <a href="dev/tps.html">Third-Party Software</a>
+  <li> <link "dev/arch.html" "Architecture">
+  <li> <link "dev/cm.html" "CM Plan">
+  <li> <link "dev/tps.html" "Third-Party Software">
 </ul>
 
 <h2>Man Pages</h2>
 
 <ul>
-  <li> <a href="man1/index.html">Section (1)</a>: Executables
-  <li> <a href="man5/index.html">Section (5)</a>: File Formats
-  <li> <a href="mann/index.html">Section (n)</a>: Tcl Commands
-  <li> <a href="mani/index.html">Section (i)</a>: Tcl Interfaces
-  <li> <a href="mansim/index.html">Section (sim)</a>:
-       <<xref athena_sim(1)>> Internals
+  <li> <link "man1/index.html" "Section (1)">: Executables
+  <li> <link "man5/index.html" "Section (5)">: File Formats
+  <li> <link "mann/index.html" "Section (n)">: Tcl Commands
+  <li> <link "mani/index.html" "Section (i)">: Tcl Interfaces
+  <li> <link "mansim/index.html" "Section (sim)">:
+       <xref athena_sim(1)> Internals
        
 </ul>
 
 <h2>Mars Man Pages</h2>
 
+<b>FIXME: This is broken; not clear yet how to fix it.</b>
+
 <ul>
-  <li> <a href="../mars/docs/man1/index.html">Section (1)</a>: Executables
-  <li> <a href="../mars/docs/man5/index.html">Section (5)</a>: File Formats
-  <li> <a href="../mars/docs/mann/index.html">Section (n)</a>: Tcl
+  <li> <link "../mars/docs/man1/index.html" "Section (1)">: Executables
+  <li> <link "../mars/docs/man5/index.html" "Section (5)">: File Formats
+  <li> <link "../mars/docs/mann/index.html" "Section (n)">: Tcl
        Commands
-  <li> <a href="../mars/docs/mani/index.html">Section (i)</a>: Tcl
+  <li> <link "../mars/docs/mani/index.html" "Section (i)">: Tcl
        Interfaces
 </ul>
 
 <h2>Modeling Documents</h2>
 
+<b>FIXME: This still works, but shouldn't; the binary docs can't go 
+into GitHub.</b>
+
 <ul>
-  <li> Athena User Guide (<a href="dev/aug.docx">MS Word docx</a>)
-  <li> Athena Analyst's Guide (<a href="dev/aag.docx">MS Word docx</a>)
-  <li> Athena Rules Document (<a href="dev/rules.pptx">PowerPoint pptx</a>)
-  <li> Mars Analyst's Guide (<a href="../mars/docs/dev/mag.docx">MS
-  Word docx</a>)
+  <li> Athena User Guide (<link "dev/aug.docx" "MS Word docx">)
+  <li> Athena Analyst's Guide (<link "dev/aag.docx" "MS Word docx">)
+  <li> Athena Rules Document (<link "dev/rules.pptx" "PowerPoint pptx">)
+  <li> Mars Analyst's Guide (<link "../mars/docs/dev/mag.docx" "MS
+  Word docx">)
 </ul>
 
 <h2>Copyright</h2>
 
-Copyright 2008-<<clock format [clock seconds] -format %Y>>,
+Copyright 2008-<clock format [clock seconds] -format %Y>,
 by the California Institute of Technology. ALL
 RIGHTS RESERVED. United States Government Sponsorship acknowledged. Any
 commercial use must be negotiated with the Office of Technology Transfer
@@ -68,11 +64,7 @@ regulations.  User has the responsibility to obtain export licenses, or
 other export authority as may be required before exporting such
 information to foreign countries or providing access to foreign persons.<p>
 
-<hr>
-
-<address><a href="mailto:William.H.Duquette@jpl.nasa.gov">William.H.Duquette@jpl.nasa.gov</a></address>
-</body>
-</html>
+</document>
 
 
 
