@@ -6,9 +6,8 @@
   <li> <xref athena(1)>: The Athena simulation.
   <li> <link "build_notes.html" "Build Notes">: Details of each
        Athena build.
-  <li> <link "dev/arch.html" "Architecture">
-  <li> <link "dev/cm.html" "CM Plan">
-  <li> <link "dev/tps.html" "Third-Party Software">
+  <li> <link "cm.html" "CM Plan">
+  <li> <link "tps.html" "Third-Party Software">
 </ul>
 
 <h2>Man Pages</h2>
@@ -38,8 +37,8 @@
 
 <h2>Modeling Documents</h2>
 
-<b>FIXME: This still works, but shouldn't; the binary docs can't go 
-into GitHub.</b>
+<b>FIXME: The binary docs are now on the boxkite server, since they can't go 
+into GitHub.  We need to make them available.</b>
 
 <ul>
   <li> Athena User Guide (<link "dev/aug.docx" "MS Word docx">)

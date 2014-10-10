@@ -5,7 +5,7 @@ poc William.H.Duquette@jpl.nasa.gov
 # External Dependencies
 require snit 2.3
 require comm 4.6
-require Img 1.4
+require Img 1.4.1
 require BWidget 1.9
 require Tktable 2.11
 require treectrl 2.4
