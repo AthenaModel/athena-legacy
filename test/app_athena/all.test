@@ -1,0 +1,28 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    all.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Tcltest test suite for app_sim(n), for execution via athena_test(1).
+#    This test script invokes all of the others in alphabetical order.
+#
+#-----------------------------------------------------------------------
+
+# Configure tcltest not to include *this* file
+# when loading test scripts.
+
+tcltest::configure -notfile [file tail [info script]]
+
+#-----------------------------------------------------------------------
+# Run all of the tests in this directory
+
+::tcltest::runAllTests
+
+
+
+
+
