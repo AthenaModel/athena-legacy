@@ -50,6 +50,8 @@ lappend auto_path $libdir
 package require Tcl 8.6
 package require Tk 8.6
 
+package require kiteinfo
+
 #-----------------------------------------------------------------------
 # Main Program 
 
@@ -60,12 +62,6 @@ package require Tk 8.6
 # This is the main program; it is invoked at the bottom of the file.
 
 proc main {argv} {
-    # FIRST, load marsutil(n).  Don't import it;
-    # leave that for the applications.
-
-    package require marsutil
-
-    # NEXT, require the application package
     package require app_cellide
 
     # NEXT, Invoke the app.

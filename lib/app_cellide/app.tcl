@@ -240,4 +240,6 @@ snit::type app {
     }
 }
 
-
+proc version {} {
+    return [kiteinfo version]
+}
