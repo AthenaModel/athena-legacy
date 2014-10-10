@@ -74,7 +74,7 @@ package require Tcl 8.6
 set metadata {
     sim {
         text   "Athena Simulation"
-        applib athenaapp
+        applib app_athena
         mode   gui
     }
 }
