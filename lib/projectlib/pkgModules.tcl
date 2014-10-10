@@ -39,9 +39,10 @@ package require -exact marsutil 3.0.2a0
 package require -exact simlib 3.0.2a0
 # -kite-require-end
 
+package require kiteinfo
+
 #-----------------------------------------------------------------------
 # Namespace definition
-
 
 namespace import ::kiteutils::*
 namespace import ::marsutil::* 
@@ -55,7 +56,6 @@ namespace eval ::projectlib:: {
 # Modules
 
 source [file join $::projectlib::library osdir.tcl          ]
-source [file join $::projectlib::library projinfo.tcl       ]
 source [file join $::projectlib::library domparser.tcl      ]
 source [file join $::projectlib::library enumx.tcl          ]
 source [file join $::projectlib::library projtypes.tcl      ]

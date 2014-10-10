@@ -458,14 +458,10 @@ snit::type ::projectlib::scenariodb {
         $db eval "PRAGMA user_version=$schemaID"
 
         # NEXT, set the Athena version and build.
-        set version [projinfo version]
-        set build   [projinfo build]
-        set vfull   "$version-$build"
+        set version [kiteinfo version]
 
         $db eval {
-            INSERT INTO scenario(parm,value) VALUES('version',     $version);
-            INSERT INTO scenario(parm,value) VALUES('build',       $build);
-            INSERT INTO scenario(parm,value) VALUES('versionfull', $vfull);
+            INSERT INTO scenario(parm,value) VALUES('version', $version);
         }
 
         # NEXT, As of this point all changes are saved.

@@ -2,6 +2,9 @@
 project athena-sim 6.3.1a0 {Athena Regional Stability Simulation}
 poc William.H.Duquette@jpl.nasa.gov
 
+app athena   -apptype exe -gui
+app cellide  -apptype exe -gui
+
 # External Dependencies
 require snit 2.3
 require comm 4.6

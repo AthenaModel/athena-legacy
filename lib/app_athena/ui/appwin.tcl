@@ -1223,7 +1223,7 @@ snit::widget appwin {
             set modeText "Simulation"
         }
 
-        wm title $win "Athena [projinfo version] ([projinfo build]): $modeText, $dbfile"
+        wm title $win "Athena [kiteinfo version]: $modeText, $dbfile"
     }
 
 

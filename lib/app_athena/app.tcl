@@ -306,9 +306,9 @@ snit::type app {
         # GUI mode
         if {[app tkloaded]} {
             orderdialog init \
-                -parent    [list app topwin]                              \
-                -appname   "Athena [projinfo version] ([projinfo build])" \
-                -helpcmd   [list app help]                                \
+                -parent    [list app topwin]           \
+                -appname   "Athena [kiteinfo version]" \
+                -helpcmd   [list app help]             \
                 -refreshon {
                     ::cif <Update>
                     ::sim <Tick>
@@ -336,12 +336,11 @@ snit::type app {
         }
 
         # NEXT, log that we're up.
-        log normal app "Athena [projinfo version] ([projinfo build])"
+        log normal app "Athena [kiteinfo version]"
         
         # NEXT, if we're in batch mode print that we are up
         if {$opts(-batch)} {
-            puts [format "%-25s %s" "Athena version:"        [projinfo version]]
-            puts [format "%-25s %s" "Athena build:"          [projinfo build]]
+            puts [format "%-25s %s" "Athena version:"        [kiteinfo version]]
             puts [format "%-25s %s" "Application directory:" [appdir join]]
             puts [format "%-25s %s" "Working directory:"     [workdir join]]
         }
@@ -982,6 +981,14 @@ snit::type app {
 
 #-----------------------------------------------------------------------
 # Section: Miscellaneous Application Utility Procs
+
+# version
+#
+# Returns the application version.
+
+proc version {} {
+    return [kiteinfo version]
+}
 
 # profile ?depth? command ?args...?
 #

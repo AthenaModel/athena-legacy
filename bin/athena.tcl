@@ -68,6 +68,8 @@ lappend auto_path $libdir
 
 package require Tcl 8.6
 
+package require kiteinfo
+
 #-----------------------------------------------------------------------
 # Application Metadata
 
@@ -305,13 +307,12 @@ proc ::athena_mods::apply {} {
     # NEXT, apply the mods
     foreach num [lsort -integer $mods(ids)] {
         # FIRST, it's an error if the version doesn't match
-        if {[llength [info commands ::version]] != 0 &&
-            $mods(version-$num) ne [version]
+        if {$mods(version-$num) ne [kiteinfo version]
         } {
             errexit \
                 "Version mismatch:" \
                 "  Mod file $mods(modfile-$num) is for Athena $mods(version-$num)." \
-                "  This is Athena [version]." \
+                "  This is Athena [kiteinfo version]." \
                 "" \
                 "Remove $mods(modfile-$num) from $moddir."
         }
