@@ -283,9 +283,9 @@ snit::type econ {
                      -tracecmd [mytypemethod TraceSAM]]
 
         sam load \
-            [readfile [file join $::app_sim_shared::library sam6x6.cm]]
+            [readfile [file join $::app_athena_shared::library sam6x6.cm]]
 
-        log detail econ "Read SAM from [file join $::app_sim_shared::library sam6x6.cm]"
+        log detail econ "Read SAM from [file join $::app_athena_shared::library sam6x6.cm]"
 
         require {[sam sane]} "The econ model's SAM is not sane."
 
@@ -303,9 +303,9 @@ snit::type econ {
                      -maxiters 1000     \
                      -failcmd  [mytypemethod CellModelFailure] \
                      -tracecmd [mytypemethod TraceCGE]]
-        cge load [readfile [file join $::app_sim_shared::library cge6x6.cm]]
+        cge load [readfile [file join $::app_athena_shared::library cge6x6.cm]]
 
-        log detail econ "Read CGE from [file join $::app_sim_shared::library cge6x6.cm]"
+        log detail econ "Read CGE from [file join $::app_athena_shared::library cge6x6.cm]"
         
         require {[cge sane]} "The econ model's CGE (cge6x6.cm) is not sane."
 
@@ -1535,7 +1535,7 @@ snit::type econ {
 
             samcopy load \
                 [readfile \
-                    [file join $::app_sim_shared::library sam6x6.cm]]
+                    [file join $::app_athena_shared::library sam6x6.cm]]
 
             return $samcopy
         }

@@ -39,23 +39,13 @@ namespace import ::projectlib::*
 
 # For Tk applications
 if {$::loadTk} {
-    # From Mars
-    package require marsgui 3.0.2a0
-
-    # From Athena
+    package require ctext
     package require projectgui
 
-    namespace import ::marsgui::*
     namespace import ::projectgui::*
-
-    package require app_sim_ui
-    package require wnbhood
-    package require wintel
 }
 
 # -kite-require-end
-
-package require app_sim_shared
 
 #-----------------------------------------------------------------------
 # Namespace definition
@@ -65,7 +55,7 @@ namespace eval ::app_athena:: {
 }
 
 #-----------------------------------------------------------------------
-# Load app_sim(n) submodules
+# Load app_athena(n) modules
 
 source [file join $::app_athena::library app.tcl      ]
 source [file join $::app_athena::library scenario.tcl ]
@@ -76,6 +66,18 @@ source [file join $::app_athena::library cif.tcl      ]
 source [file join $::app_athena::library map.tcl      ]
 source [file join $::app_athena::library sanity.tcl   ]
 source [file join $::app_athena::library axdb.tcl     ]
+
+#-----------------------------------------------------------------------
+# Load app_athena(n) subpackages
+
+source [file join $::app_athena::library shared modules.tcl]
+
+# For Tk applications
+if {$::loadTk} {
+    source [file join $::app_athena::library ui      modules.tcl]
+    source [file join $::app_athena::library wnbhood modules.tcl]
+    source [file join $::app_athena::library wintel  modules.tcl]
+}
 
 
 

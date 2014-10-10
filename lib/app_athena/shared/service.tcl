@@ -49,7 +49,7 @@ snit::type service {
 
     typemethod {sqlsection tempschema} {} {
         return \
-            [readfile [file join $::app_sim_shared::library service_temp.sql]]
+            [readfile [file join $::app_athena_shared::library service_temp.sql]]
     }
 
     # sqlsection functions

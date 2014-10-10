@@ -5,3 +5,4 @@
 * Use standard app loader scripts
 * Build athena.exe
 * Build cellide.exe
+* Cleanup osdir.

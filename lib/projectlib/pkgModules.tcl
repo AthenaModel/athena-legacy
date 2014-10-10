@@ -45,6 +45,7 @@ package require -exact simlib 3.0.2a0
 
 namespace import ::kiteutils::*
 namespace import ::marsutil::* 
+namespace import ::simlib::*
 
 namespace eval ::projectlib:: {
     variable library [file dirname [info script]]

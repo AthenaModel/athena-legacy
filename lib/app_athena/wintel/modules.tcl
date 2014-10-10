@@ -1,12 +1,9 @@
 #-----------------------------------------------------------------------
-# FILE: pkgModules.
+# FILE: 
+#   modules.tcl -- subpackage loader
 #
-#   Package loader.  This file provides the package, requires all
-#   other packages upon which this package depends, and sources in
-#   all of the package's modules.
-#
-# PACKAGE:
-#   wintel(n) -- package for athena(1) intel ingestion wizard.
+# SUBPACKAGE:
+#   app_athena/wintel(n) -- package for athena(1) intel ingestion wizard.
 #
 # PROJECT:
 #   Athena Regional Stability Simulation
@@ -18,18 +15,10 @@
 
 #-----------------------------------------------------------------------
 # Namespace definition
-#
-# Because this is an application package, the namespace is mostly
-# unused.
 
 namespace eval ::wintel:: {
     variable library [file dirname [info script]]
 }
-
-#-----------------------------------------------------------------------
-# Provide the wintel(n) package
-
-package provide wintel 1.0
 
 #-----------------------------------------------------------------------
 # Load modules
