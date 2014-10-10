@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_cellapp(n): myserver(i) Server
+#    app_cellide(n): myserver(i) Server
 #
 #    This is an object that presents a unified view of the data resources
 #    in the application, and consequently abstracts away the details of

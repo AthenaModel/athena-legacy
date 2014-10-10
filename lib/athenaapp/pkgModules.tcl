@@ -30,9 +30,9 @@ package provide athenaapp 6.3.1a0
 package require snit 2.3
 package require sqlite3 3.8.5
 package require textutil::adjust 0.7
-package require kiteutils 0.3.1a0
-package require marsutil 3.0.1a0
-package require simlib 3.0.1a0
+package require kiteutils 0.4.0a0
+package require marsutil 3.0.2a0
+package require simlib 3.0.2a0
 package require projectlib
 
 namespace import ::projectlib::*
@@ -40,7 +40,7 @@ namespace import ::projectlib::*
 # For Tk applications
 if {$::loadTk} {
     # From Mars
-    package require marsgui 3.0.1a0
+    package require marsgui 3.0.2a0
 
     # From Athena
     package require projectgui

@@ -77,12 +77,6 @@ set metadata {
         applib athenaapp
         mode   gui
     }
-
-    pbs {
-        text "Athena Simulation PBS Cluster"
-        applib athena_pbsapp
-        mode gui
-    }
 }
 
 #-----------------------------------------------------------------------

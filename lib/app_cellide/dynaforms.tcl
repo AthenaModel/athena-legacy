@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_cellapp(n) dynaform definitions
+#    app_cellide(n) dynaform definitions
 #
 #    This module contains dynaforms defined for use by the application.
 #

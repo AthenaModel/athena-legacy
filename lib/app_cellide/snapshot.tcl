@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_cellapp(n) snapshot ensemble.
+#    app_cellide(n) snapshot ensemble.
 #
 #    This module manages the cellmodel snapshots for the application.  A
 #    snapshot is a cell/value dictionary that represents one value of the

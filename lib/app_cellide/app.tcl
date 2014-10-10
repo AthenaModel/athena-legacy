@@ -4,7 +4,7 @@
 #   Application Ensemble.
 #
 # PACKAGE:
-#   athena_cellapp(n) -- athena_cell(1) implementation package
+#   app_cellide(n) -- athena_cell(1) implementation package
 #
 # PROJECT:
 #   Athena S&RO Simulation
@@ -17,21 +17,21 @@
 #-----------------------------------------------------------------------
 # Required Packages
 
-# All needed packages are required in athena_cellapp.tcl.
+# All needed packages are required in app_cellide.tcl.
  
 #-----------------------------------------------------------------------
 # app
 #
-# athena_cellapp(n) Application Ensemble
+# app_cellide(n) Application Ensemble
 #
 # This module defines app, the application ensemble.  app encapsulates 
 # all of the functionality of athena_sim(1), including the application's 
 # start-up behavior.  To invoke the  application,
 #
-# > package require athena_cellapp
+# > package require app_cellide
 # > app init $argv
 #
-# The athena_cellapp(n) package can be invoked by athena(1) and by 
+# The app_cellide(n) package can be invoked by athena(1) and by 
 # athena_test(1).
 
 snit::type app {

@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_cellapp(n) cmscript Ensemble
+#    app_cellide(n) cmscript Ensemble
 #
 #    This module manages the cellmodel(5) script for the application.
 #    It knows whether the current script has been saved or not, and owns

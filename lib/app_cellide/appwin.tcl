@@ -82,7 +82,7 @@ snit::widget appwin {
         bind all <Control-F9> [list debugger new]
 
         # NEXT, restore the window
-        wm title $win "Athena Cell [version]"
+        wm title $win "Athena Cell Mode IDE [version]"
         wm deiconify $win
         raise $win
 
