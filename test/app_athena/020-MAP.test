@@ -14,6 +14,16 @@
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
+# Initialize tcltest(n) and athena(1)
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    source [file join [file dirname [file normalize [info script]]] ted.tcl]
+
+    # Initialize tcltest(n), app_athena(n), et al.
+    ted init $argv
+}
+
+#-----------------------------------------------------------------------
 # Test Suite
 #
 # The tests run in a namespace so as not to interfere with other
@@ -50,7 +60,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     test MAP:IMPORT:FILE-2.1 {map loaded} -constraints tk -body {
-        ted order MAP:IMPORT:FILE filename [testdir map.png]
+        ted order MAP:IMPORT:FILE filename map.png
 
         rdb onecolumn {SELECT filename FROM maps WHERE id=1}
     } -cleanup {
@@ -59,7 +69,7 @@ namespace eval ::athena_test::tests:: {
 
     test MAP:IMPORT:FILE-2.2 {<MapChanged> sent} -constraints tk -body {
         ted notifier bind ::map <MapChanged>
-        ted order MAP:IMPORT:FILE filename [testdir map.png]
+        ted order MAP:IMPORT:FILE filename map.png
         ted notifier received
     } -cleanup {
         cleanup
@@ -68,14 +78,14 @@ namespace eval ::athena_test::tests:: {
     }
 
     test MAP:IMPORT:FILE:3.1 {undo resets map} -constraints tk -setup {
-        ted order MAP:IMPORT:FILE filename [testdir map.png]
+        ted order MAP:IMPORT:FILE filename map.png
     } -body {
         cif undo
         rdb onecolumn {SELECT filename FROM maps WHERE id=1}
     } -result {blank.png}
 
     test MAP:IMPORT:FILE:3.2 {undo sends <MapChanged>} -constraints tk -setup {
-        ted order MAP:IMPORT:FILE filename [testdir map.png]
+        ted order MAP:IMPORT:FILE filename map.png
     } -body {
         ted notifier bind ::map <MapChanged>
         cif undo

@@ -16,8 +16,12 @@
 #
 #-----------------------------------------------------------------------
 
+package require snit
+
 #-------------------------------------------------------------------
 # ted
+
+puts ""
 
 snit::type ted {
     # Make it a singleton
@@ -92,15 +96,13 @@ snit::type ted {
     }
 
     #-------------------------------------------------------------------
-    # Type Constructor
-
-    typeconstructor {
-        # Import all util(n) and simlib(n) routines
-        namespace import ::marsutil::* ::projectlib::* ::tcltest::*
-    }
-
-    #-------------------------------------------------------------------
     # Type Variables
+
+    # appLoaded flag
+    #
+    # If 1, [ted app] has loaded the app.
+
+    typevariable appLoaded 0
 
     # Entities ted knows how to create.  The key is the entry ID; the
     # value is a pair, module name and creation dict.
@@ -118,21 +120,71 @@ snit::type ted {
     #-------------------------------------------------------------------
     # Initialization
 
-    # init
+    # init argv
     #
-    # Initializes all TED-defined data and constraints
+    # argv  - The command line arguments
+    #
+    # Loads the app_athena code in preparation for tests, initializes
+    # Ted's data structures, and configures tcltest.  If 
+    # the argument list includes "-notk", sets ::loadtk to false,
+    # extracts -notk from the argument list.  The remaining arguments
+    # are returned for use by tcltest.
 
-    typemethod init {} {
-        # FIRST, define test entities
+    typemethod init {argv} {
+        # FIRST, if the application is already loaded this is a no-op.
+        if {$appLoaded} {
+            return $argv
+        }
+        set appLoaded 1
+
+        # NEXT, check for -notk.
+        set ::loadTk 1
+
+        if {"-notk" in $argv} {
+            set ndx [lsearch -exact $argv -notk]
+            set argv [lreplace $argv $ndx $ndx]
+            set ::loadTk 0
+        }
+
+        # NEXT, load and initialize app_athena.
+        package require app_athena
+        namespace import ::kiteutils::* ::marsutil::* ::projectlib::*
+
+        puts "ted: app_athena(n) at $::app_athena::library"
+        puts ""
+
+        app init [list -ignoreuser]
+
+        puts "app_athena(n) initialized."
+
+        # NEXT, initialize tcltest(n).
+        package require tcltest 2.2 
+        ::tcltest::configure \
+            -singleproc yes  \
+            -testdir    [file dirname [file normalize [info script]]] \
+            -notfile    {all.test all_tests.test} \
+            {*}$argv
+
+        # NEXT, define test entities
         DefineEntities
 
         # NEXT, Define Constraints
-        # No constraints yet
+        ::tcltest::testConstraint tk $::loadTk
 
         # NEXT, define custom match algorithms.
         ::tcltest::customMatch dict     [mytypemethod MatchDict]
         ::tcltest::customMatch indict   [mytypemethod MatchInDict]
         ::tcltest::customMatch dictglob [mytypemethod MatchDictGlob]
+
+        # NEXT, get rid of the window, if it exists.
+        if {$::loadTk} {
+            wm protocol .main WM_DELETE_WINDOW { 
+                # NOP 
+            }
+
+            destroy .main
+            update idletasks
+        }
 
         puts "Test Execution Deputy: Initialized"
     }
