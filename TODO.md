@@ -1,5 +1,7 @@
 # TODO.md - Athena TODO List
 
+* Verify that 'athena_test all' runs successfully.  DONE
+* Make app_athena/all_tests.test run all tests.
 * Update [package requires] in all man pages.
 * Use standard app loader scripts
 * Cleanup osdir.

@@ -39,6 +39,7 @@ namespace import ::projectlib::*
 
 # For Tk applications
 if {$::loadTk} {
+    package require Tk 8.6
     package require ctext 3.3
     package require projectgui
 
