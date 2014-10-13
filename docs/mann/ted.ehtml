@@ -1,4 +1,4 @@
-<manpage {devtools(1) athena_test(1)} "Athena Test Tool">
+<manpage {ted(n)} "Athena Test Execution Deputy">
 
 <section SYNOPSIS>
 
@@ -6,70 +6,18 @@
 
 <section DESCRIPTION>
 
-<deflist program>
+The test execution deputy, or TED, is a module of test harness code
+available to the test files in <tt test/app_athena>.  It is loaded
+automatically by the test scripts.<p>
 
-<defitem athena_test {athena_test file[.test] [options....]}>
-
-</deflist program>
-
-<xref athena_test(1)> is a tool for running automated
-tests of the <xref athena_sim(1)> application.  It operates by loading
-the <xref index(sim) app_sim> application package in much the
-same way that the <xref athena(1)> loader does, so that test
-scripts can exercise the <xref athena_sim(n)> code directly.<p>
-
-The test scripts, which are written using Tcl's tcltest(n) framework,
-reside in <code>athena/test/app_sim</code>.  They may also use the
-<xref "TEST EXECUTION DEPUTY"> commands defined below, and all
-commands defined in <xref index(sim) app_sim>.<p>
-
-By default, athena_test(1) destroys the <xref athena_sim(1)> GUI
-prior to running any tests; this is significantly faster.  In
-addition, the <xref athena_sim(1)> log files and working data are
-deleted automatically at the end of the run, just as they are during a
-normal application shutdown.  Use the <b>-wait</b> option to retain
-the GUI and keep the application running when the tests are complete.<p>
-
-The following command executes the tests in
-<code>athena/test/app_sim/mytest.test</code>:<p>
-
-<pre>
-    $ athena_test mytest.test
-</pre>
-
-It isn't necessary to be in any particular directory.  Note also that the
-"<code>.test</code>" suffix may be omitted:<p>
-
-<pre>
-    $ athena_test mytest
-</pre>
-
-There is a top-level test script, <code>all.test</code>; thus,
-all tests can be executed as follows:<p>
-
-<pre>
-    $ athena_test all
-</pre>
-
-A particular test or set of tests can be requested using tcltest(n)'s
-<code>-match</code> option.  For example, this command executes only
-tests from mytest.test whose names begin with "mycase-":<p>
-
-<pre>
-    $ athena_test mytest -match "mycase-*"
-</pre>
-
-<subsection "User Environment">
-
-<xref athena_test(1)> does not load user environment files, such as
-the default parameters file.  All model parameters will have their
-programmatic defaults.<p>
+Every test script begins by calling <iref ted init> if it hasn't
+already been called.<p>
 
 <section "ENTITIES">
 
 TED defines a number of standard entities--neighborhoods, groups, and
 so on--for use in test suites.  The complete list is found in
-<code>test/app_sim/ted.tcl</code>.  The <iref ted create> routine is
+<code>test/app_athena/ted.tcl</code>.  The <iref ted create> routine is
 used to create them, and <iref ted entity> is used to retrieve the
 parameters with which they are created.  Note that these parameters
 are defined to be used with the relevant "<b>mutate create</b>"
@@ -82,35 +30,24 @@ creating all dependent entities, and send the <b>SIM:LOCK</b> order.<p>
 The <iref ted cleanup> command will
 delete all entities created using <iref ted create>, among other things.<p>
 
-<section "OPTIONS">
+<section "COMMANDS">
 
-athena_test(1) defines the following options; any other options on the
-command line are passed to tcltest(n).<p>
-
-<deflist options>
-
-<defopt {-wait}>
-
-When specified, the <xref athena_sim(1)> GUI remains active
-throughout the tests, and the application remains running when the
-tests are complete.<p>
-
-</deflist options>
-
-<section "TEST EXECUTION DEPUTY">
-
-The athena_sim(1) test scripts rely on Tcl's tcltest(n) framework.  In
-addition, athena_test(1) defines a set of utility commands for use in tests;
-collectively, these commands are called the Test Execution Deputy
-(TED).  This section documents the commands provided by the TED.<p>
+This section documents the commands provided by the TED.<p>
 
 <deflist test_commands>
 
-<defitem ted {ted <i>subcommand</i> ?<i>args...</i>?}>
+<defitem "ted init" {ted init <i argv>}>
 
-Most of the TED commands are subcommands of <iref ted>.<p>
+This command should be called exactly once each time tests are executed.
+The <i argv> parameter is the argument list given to the test script;
+if it includes the <tt -notk> option, Tk will not be loaded.  (Tests requiring
+Tk should use "<tt -constraints tk>".)  Any remaining arguments are passed
+to tcltest(n).<p>
 
-<deflist ted>
+Then, this command loads the app_athena(n) code and initializes the 
+athena(1) application in a neutral state, destroying its GUI, and initializes
+tcltest(n).  If the <tt test/app_athena/all_tests.test> script is run, all 
+of the app_athena(n) tests will run; otherwise, the named script will run.<p>
 
 <defitem "ted cleanup" {ted cleanup}>
 
@@ -302,12 +239,11 @@ Sets/queries the unit's personnel.<p>
 
 </deflist ted unit>
 
-</deflist ted>
 </deflist test_commands>
 
 <section "TEST MATCH ALGORITHMS">
 
-athena_test, via "ted", defines the following custom resulting matching
+ted(n) defines the following custom resulting matching
 algorithms, available via the TclTest <code>-match</code> option:<p>
 
 <deflist match>
@@ -335,7 +271,9 @@ the patterns in <code>-result</code>.<p>
 
 <section "TEST CONSTRAINTS">
 
-<b>TBD:</b> As yet, no constraints are defined.<p>
+ted(n) defines one constraint, <b tk>, which is to be used with tests
+that require Tk.  The test suite can be run with a <tt -notk> flag to
+prevent Tk from being loaded.<p>
 
 <section AUTHOR>
 
