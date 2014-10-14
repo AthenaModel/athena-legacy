@@ -32,17 +32,17 @@
 #-----------------------------------------------------------------------
 
 page / order "Orders" {
-    <<title>>
+    <title>
     The analyst communicates with Athena by means of <i>orders</i>.
     Most orders are sent by means of an order dialog; some are sent
     implicitly.  For example, dragging a unit from one place to
-    another on the map implicitly sends the <<cref /order/unit/move>> 
+    another on the map implicitly sends the <cref /order/unit/move> 
     order.  Order dialogs can be invoked in a number of ways, e.g., by
-    selecting an order from the <<cref /menu/orders>>.<p>
+    selecting an order from the <cref /menu/orders>.<p>
 
     Orders are grouped in the following categories:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 # order name title text
@@ -63,7 +63,7 @@ proc order {name title text} {
     set slug [string map {+ :} $slug]
     set name [string map {+ :} $name]
 
-    set text "<<order.header [list $title]>>\n\n$text"
+    set text "<order.header [list $title]>\n\n$text"
     page $parent $slug $name $text
 }
 

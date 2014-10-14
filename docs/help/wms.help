@@ -14,14 +14,14 @@
 #-----------------------------------------------------------------------
 
 page / wms "Web Map Service Client" {
-    <<title WMS Client>>
+    <title WMS Client>
 
     Athena includes a WMS client that can be used to configure the map
     background using maps from an Open GIS compliant Web Map Service.<p>
 
     The client is launched from the 
-    <<cref /menu/file/import_map_from_wms "Import Map From WMS...">> menu
-    item under the <<cref /menu/file "File">> menu.<p>
+    <cref /menu/file/import_map_from_wms "Import Map From WMS..."> menu
+    item under the <cref /menu/file "File"> menu.<p>
 
     Once launched the client will connect to a known web map service by 
     default which is found at:<p>

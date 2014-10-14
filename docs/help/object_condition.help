@@ -21,9 +21,9 @@ object condition_ {
 
     overview {
         A <i>condition</i> a Boolean predicate that can be
-        attached to a <<term strategy>> <<term block>>.
+        attached to a <term strategy> <term block>.
         Conditions (along with the block's time constraints and resources
-        required by the block's <<term tactic>>s) determine whether or 
+        required by the block's <term tactic>s) determine whether or 
         not the block should execute.<p>
     }
 
@@ -40,17 +40,17 @@ object condition_ {
     } -tags {cget}
 
     attribute agent "Agent" {
-        The ID of the <<term agent>> to whose strategy this
+        The ID of the <term agent> to whose strategy this
         condition belongs.
     } -tags {object cget}
 
     attribute typename "Condition Type" {
         The condition's type, e.g., 
-        <b><<cref /object/condition/compare COMPARE>></b>.
+        <b><cref /object/condition/compare COMPARE></b>.
     } -tags {object cget}
 
     attribute parent "Parent" {
-        The ID of the <<term block>> containing this condition.
+        The ID of the <term block> containing this condition.
     } -tags {cget}
 
     attribute state "State" {
@@ -69,18 +69,18 @@ object condition_ {
 }
 
 page /object condition "Condition" {
-    <<sotitle>>
+    <sotitle>
 
-    <<condition_ overview>><p>
+    <condition_ overview><p>
 
     There are many different kinds of condition; all share the following
     parameters:<p>
 
-    <<condition_ parmlist -tags object>>
+    <condition_ parmlist -tags object>
 
     The full set of conditions is as follows:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 
@@ -90,39 +90,39 @@ page /object condition "Condition" {
 object condition_compare {
     noun "COMPARE condition"
     overview {
-        This <<term condition>> compares two numbers according to 
+        This <term condition> compares two numbers according to 
         the selected comparison operator.  The numbers are selected
-        using the <<cref /gofer/number>>s. <p>
+        using the <cref /gofer/number>s. <p>
     }
 
     include condition_ -attrs {id typename agent state}
 
     attribute x "X Value" {
         The X value in the comparison, chosen by rule using the
-        <<cref /gofer/number>>.
+        <cref /gofer/number>.
     } -tags {update}
 
     attribute comp "Is" {
         The kind of comparison being done: a value from
         the following table:<p>
 
-        <<::projectlib::ecomparatorx html>>
+        <super ::projectlib::ecomparatorx html>
     } -tags {create update}
 
     attribute y "Y Value" {
         The Y value in the comparison, chosen by rule using the
-        <<cref /gofer/number>>.
+        <cref /gofer/number>.
     } -tags {update}
 }
 
 page /object/condition compare "COMPARE condition" {
-    <<sotitle>>
+    <sotitle>
 
-    <<condition_compare overview>><p>
+    <condition_compare overview><p>
 
     COMPARE conditions have the following attributes:<p>
 
-    <<condition_compare parmlist>>
+    <condition_compare parmlist>
 }
 
 
@@ -132,9 +132,9 @@ page /object/condition compare "COMPARE condition" {
 object condition_control {
     noun "CONTROL condition"
     overview {
-        This <<term condition>> determines whether an actor controls
+        This <term condition> determines whether an actor controls
         or does not control any or all of a set of neighborhoods.  The set
-        of neighborhoods is selected using the <<cref /gofer/nbhoods>>s.<p>
+        of neighborhoods is selected using the <cref /gofer/nbhoods>s.<p>
 
         If the set of neighborhoods turns out to be empty, the condition
         is assumed to be unmet.
@@ -157,18 +157,18 @@ object condition_control {
 
     attribute nlist "Neighborhoods" {
         The selected neighborhoods, chosen by rule using the
-        <<cref /gofer/nbhoods>>.
+        <cref /gofer/nbhoods>.
     } -tags {update}
 }
 
 page /object/condition control "CONTROL condition" {
-    <<sotitle>>
+    <sotitle>
 
-    <<condition_control overview>><p>
+    <condition_control overview><p>
 
     CONTROL conditions have the following attributes:<p>
 
-    <<condition_control parmlist>>
+    <condition_control parmlist>
 }
 
 
@@ -178,26 +178,26 @@ page /object/condition control "CONTROL condition" {
 object condition_expr {
     noun "EXPR condition"
     overview {
-        This <<term condition>> is met when a particular boolean
+        This <term condition> is met when a particular boolean
         expression is true.  The expression has Tcl expression 
         syntax, and is evaluated by the Athena
-        <<term executive>>.  The expression can call
-        arbitrary executive <<cref /command commands>> and 
-        <<cref /function functions>>, 
+        <term executive>.  The expression can call
+        arbitrary executive <cref /command commands> and 
+        <cref /function functions>, 
         but should avoid calling commands with side effects.<p>
 
         Athena does the best it can to detect errors in the user's
         expression when the expression is first entered, and when
         sanity checks are performed.  Some errors (e.g., divide by zero)
         can only be discovered when Athena evaluates the condition
-        during <<term strategy>> execution.  In this case, the error will 
-        be logged in the <a href="my://app/sigevents">Significant Events</a>
+        during <term strategy> execution.  In this case, the error will 
+        be logged in the <link "my://app/sigevents" "Significant Events">
         log.<p>
 
         A condition whose expression contains a sanity check failure
         error is assumed to be false, and it is marked invalid.  
         Such conditions can be seen at a glance in the
-        <a href="gui:/tab/strategy">Strategy Browser</a> because they
+        <link "gui:/tab/strategy" "Strategy Browser"> because they
         will be displayed in red.  In addition, the block to which the
         condition belongs will not execute.  To execute the scenario,
         either fix the error or disable the condition.
@@ -207,18 +207,18 @@ object condition_expr {
 
     attribute expression "Expression" {
         A boolean expression with Tcl syntax to be evaluated by the
-        Athena <<term executive>>.
+        Athena <term executive>.
     } -tags {update}
 }
 
 page /object/condition expr "EXPR condition" {
-    <<sotitle>>
+    <sotitle>
 
-    <<condition_expr overview>><p>
+    <condition_expr overview><p>
 
     EXPR conditions have the following attributes:<p>
 
-    <<condition_expr parmlist>>
+    <condition_expr parmlist>
 }
 
 

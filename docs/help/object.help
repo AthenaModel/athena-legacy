@@ -20,14 +20,14 @@
 #-----------------------------------------------------------------------
 
 page / object "Sim Objects" {
-    <<title>>
+    <title>
     This section of the help documents the significant object types
     in the Athena simulation, e.g., 
-    <<term actor>>s, <<term group>>s, 
-    <<term nbhood>>s, and so forth.  The full set of 
+    <term actor>s, <term group>s, 
+    <term nbhood>s, and so forth.  The full set of 
     object types is as follows:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 macro sotitle {} {

@@ -18,14 +18,14 @@ object actor_ {
 
     overview {
         An <i>actor</i> is a significant decision-maker in the 
-        region of interest.  Actors are <<term agent>>s, so they 
-        can use <<term tactic>>s to
+        region of interest.  Actors are <term agent>s, so they 
+        can use <term tactic>s to
         achieve their goals subject to certain 
-        <<term condition>>s.  Collectively, this is called the
-        actor's <<term strategy>>; it is browsed and edited on 
-        the <<tab Strategy>>.<p>
+        <term condition>s.  Collectively, this is called the
+        actor's <term strategy>; it is browsed and edited on 
+        the <tab Strategy>.<p>
 
-        Actors own <<term frcgroup>>s and <<term orggroup>>s,
+        Actors own <term frcgroup>s and <term orggroup>s,
         and also receive income from the Economic model; this income is used
         to support the actor's tactics.  Thus, one can attack an actor's
         ability to act by attacking the actor's sources of income.<p>
@@ -49,7 +49,7 @@ object actor_ {
         The actor's belief system, a collection of positions on
         topics of interest in the region that determines how
         groups perceive this actor.  Belief systems are 
-        created and edited on the <<tab "Social/Beliefs">>.
+        created and edited on the <tab "Social/Beliefs">.
     } -tags {create_opt update browser}
 
     attribute supports "Supports" {
@@ -65,7 +65,7 @@ object actor_ {
 
         This kind of support applies to each neighborhood separately;
         the actor can explicitly specify who to support in each
-        neighborhood using the <<cref /object/tactic/support>>.  In
+        neighborhood using the <cref /object/tactic/support>.  In
         the absence of such a tactic for a particular neighborhood,
         the actor will support the actor specified here.<p>
     } -tags {create update browser}
@@ -93,7 +93,7 @@ object actor_ {
         <b>INCOME actors only!</b>
         Every actor has some amount of cash in reserve for future needs
         that can be released for use via the 
-        <<cref /object/tactic/withdraw>>.  The actor is given an initial 
+        <cref /object/tactic/withdraw>.  The actor is given an initial 
         reserve as part of the scenario; once
         the simulation begins, the level of the reserve can fluctuate.
     } -tags {create_opt update browser}
@@ -104,8 +104,8 @@ object actor_ {
         has available to fund tactics.  The actor receives income
         into his cash-on-hand every week, and may also move money
         between his cash-on-hand and cash reserve using the
-        <<cref /object/tactic/deposit>> and 
-        <<cref /object/tactic/withdraw>>.  Cash-on-hand that is unspent
+        <cref /object/tactic/deposit> and 
+        <cref /object/tactic/withdraw>.  Cash-on-hand that is unspent
         during a given week automatically carries over to the next week.<p>
 
         The actor is given an initial amount of cash-on-hand as part
@@ -223,12 +223,12 @@ object actor_ {
 }
 
 page /object actor "Actor" {
-    <<sotitle>>
+    <sotitle>
 
-    <<actor_ overview>><p>
+    <actor_ overview><p>
 
     Actors have the following attributes:<p>
 
-    <<actor_ parmlist>>
+    <actor_ parmlist>
 }
 

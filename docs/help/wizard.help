@@ -19,7 +19,7 @@
 #-----------------------------------------------------------------------
 
 page / wizard "Wizards" {
-    <<title>>
+    <title>
     
     <b>Overview:</b>
     Wizards are used in Athena as a means to ingest certain kinds of data

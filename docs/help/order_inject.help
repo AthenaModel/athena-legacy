@@ -14,9 +14,9 @@
 #-----------------------------------------------------------------------
 
 page /order inject "CURSE Inject Orders" {
-    <<title>>
+    <title>
 
-    Through the user of <<cref /order/curse CURSEs>> Athena allows the 
+    Through the user of <cref /order/curse CURSEs> Athena allows the 
     analyst to model any number of user defined events and situations 
     that drive attitude change. Once a CURSE is created, the analyst may 
     associate with it a variety of attitude injects; and the effects of
@@ -25,149 +25,149 @@ page /order inject "CURSE Inject Orders" {
 
     The following orders are used to create and manipulate injects:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 order INJECT:DELETE "Delete Inject" {
-    Deletes the <<term inject>>. The order parameters are as
+    Deletes the <term inject>. The order parameters are as
     follows:<p>
 
-    <<parmlist>>
-    <<inject_ parm id -required>>
-    <</parmlist>>
+    <parmlist>
+    <inject_ parm id -required>
+    </parmlist>
 }
 
 order INJECT:STATE "Set Inject State" {
-    Sets the <<term inject>>'s state. Note that this order is for
+    Sets the <term inject>'s state. Note that this order is for
     internal use by the application; there is no associated order
     dialog.  The order parameters are as follows:<p>
 
-    <<parmlist>>
-    <<inject_ parms -required -tags state>>
-    <</parmlist>>
+    <parmlist>
+    <inject_ parms -required -tags state>
+    </parmlist>
 }
 
 #---------------------------------------------------------------------
 # inject: COOP
 
 page /order/inject coop INJECT:COOP:* {
-    <<title>>
+    <title>
 
     The following orders are used to create and update
-    <<cref /object/inject/coop>>s.<p>
+    <cref /object/inject/coop>s.<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 order INJECT:COOP:CREATE "Create Inject: Cooperation" {
-    Creates a <<cref /object/inject/coop>>.<p>
+    Creates a <cref /object/inject/coop>.<p>
 
-    <<parmlist>>
-    <<inject_ parms -required -tags create>>
-    <<inject_coop parms -required -tags create>>
-    <</parmlist>>
+    <parmlist>
+    <inject_ parms -required -tags create>
+    <inject_coop parms -required -tags create>
+    </parmlist>
 }
 
 order INJECT:COOP:UPDATE "Update Inject: Cooperation" {
-    Updates an existing <<cref /object/inject/coop>>.<p>
+    Updates an existing <cref /object/inject/coop>.<p>
 
-    <<parmlist>>
-    <<inject_ parm id -required>>
-    <<inject_ parms -optional -tags update>>
-    <<inject_coop parms -optional -tags update>>
-    <</parmlist>>
+    <parmlist>
+    <inject_ parm id -required>
+    <inject_ parms -optional -tags update>
+    <inject_coop parms -optional -tags update>
+    </parmlist>
 }
 
 #--------------------------------------------------------------------
 # inject: HREL
 
 page /order/inject hrel INJECT:HREL:* {
-    <<title>>
+    <title>
 
     The following orders are used to create and update
-    <<cref /object/inject/hrel>>s.<p>
+    <cref /object/inject/hrel>s.<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 order INJECT:HREL:CREATE "Create Inject: Horizontal Relationship" {
-    Creates a <<cref /object/inject/hrel>>.<p>
+    Creates a <cref /object/inject/hrel>.<p>
 
-    <<parmlist>>
-    <<inject_ parms -required -tags create>>
-    <<inject_hrel parms -required -tags create>>
-    <</parmlist>>
+    <parmlist>
+    <inject_ parms -required -tags create>
+    <inject_hrel parms -required -tags create>
+    </parmlist>
 }
 
 order INJECT:HREL:UPDATE "Update Inject: Horizontal Relationship" {
-    Updates an existing <<cref /object/inject/hrel>>.<p>
+    Updates an existing <cref /object/inject/hrel>.<p>
 
-    <<parmlist>>
-    <<inject_ parm id -required>>
-    <<inject_ parms -optional -tags update>>
-    <<inject_hrel parms -optional -tags update>>
-    <</parmlist>>
+    <parmlist>
+    <inject_ parm id -required>
+    <inject_ parms -optional -tags update>
+    <inject_hrel parms -optional -tags update>
+    </parmlist>
 }
 
 #--------------------------------------------------------------------
 # inject: SAT
 
 page /order/inject sat INJECT:SAT:* {
-    <<title>>
+    <title>
 
     The following orders are used to create and update
-    <<cref /object/inject/sat>>s.<p>
+    <cref /object/inject/sat>s.<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 order INJECT:SAT:CREATE "Create Inject: Satisfaction" {
-    Creates a <<cref /object/inject/sat>>.<p>
+    Creates a <cref /object/inject/sat>.<p>
 
-    <<parmlist>>
-    <<inject_ parms -required -tags create>>
-    <<inject_sat parms -required -tags create>>
-    <</parmlist>>
+    <parmlist>
+    <inject_ parms -required -tags create>
+    <inject_sat parms -required -tags create>
+    </parmlist>
 }
 
 order INJECT:SAT:UPDATE "Update Inject: Satisfaction" {
-    Updates an existing <<cref /object/inject/sat>>.<p>
+    Updates an existing <cref /object/inject/sat>.<p>
 
-    <<parmlist>>
-    <<inject_ parm id -required>>
-    <<inject_ parms -optional -tags update>>
-    <<inject_sat parms -optional -tags update>>
-    <</parmlist>>
+    <parmlist>
+    <inject_ parm id -required>
+    <inject_ parms -optional -tags update>
+    <inject_sat parms -optional -tags update>
+    </parmlist>
 }
 
 #--------------------------------------------------------------------
 # inject: VREL 
 
 page /order/inject vrel INJECT:VREL:* {
-    <<title>>
+    <title>
 
     The following orders are used to create and update
-    <<cref /object/inject/vrel>>s.<p>
+    <cref /object/inject/vrel>s.<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 order INJECT:VREL:CREATE "Create Inject: Vertical Relationship" {
-    Creates a <<cref /object/inject/vrel>>.<p>
+    Creates a <cref /object/inject/vrel>.<p>
 
-    <<parmlist>>
-    <<inject_ parms -required -tags create>>
-    <<inject_vrel parms -required -tags create>>
-    <</parmlist>>
+    <parmlist>
+    <inject_ parms -required -tags create>
+    <inject_vrel parms -required -tags create>
+    </parmlist>
 }
 
 order INJECT:VREL:UPDATE "Update Inject: Vertical Relationship" {
-    Updates an existing <<cref /object/inject/vrel>>.<p>
+    Updates an existing <cref /object/inject/vrel>.<p>
 
-    <<parmlist>>
-    <<inject_ parm id -required>>
-    <<inject_ parms -optional -tags update>>
-    <<inject_vrel parms -optional -tags update>>
-    <</parmlist>>
+    <parmlist>
+    <inject_ parm id -required>
+    <inject_ parms -optional -tags update>
+    <inject_vrel parms -optional -tags update>
+    </parmlist>
 }
 

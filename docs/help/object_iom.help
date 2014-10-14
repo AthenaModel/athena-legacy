@@ -18,10 +18,10 @@ object iom_ {
 
     overview {
         An <i>IOM</i> is an Information Operations Message, a message 
-        sent by an actor via a <<term cap>> in order to influence
-        public opinion.  An IOM includes a <<term hook>>, used to
+        sent by an actor via a <term cap> in order to influence
+        public opinion.  An IOM includes a <term hook>, used to
         pull in the civilians, and one or more 
-        <<term payload>>s, which actually change civilian attitudes.<p>
+        <term payload>s, which actually change civilian attitudes.<p>
 
         Converting real-world information operations campaigns into
         IOMs requires a great deal of judgement on the part of the
@@ -29,7 +29,7 @@ object iom_ {
         how to make the best use of IOMs.<p>
         
         IOMs are created and edited on the 
-        <<cref /tab/information/info_ops_messages>>.<p>
+        <cref /tab/information/info_ops_messages>.<p>
 
     }
 
@@ -51,11 +51,11 @@ object iom_ {
 
     attribute hook_id "Semantic Hook" {
         The message appeals to the belief systems of the targetted
-        civilians by means of its <<term hook>>.  Semantic hooks are
-        created and edited on the <<cref /tab/information/semantic_hooks>> tab.<p>
+        civilians by means of its <term hook>.  Semantic hooks are
+        created and edited on the <cref /tab/information/semantic_hooks> tab.<p>
         
         This parameter may remain unset during
-        <<term prep>>, but must be specified before time can be
+        <term prep>, but must be specified before time can be
         advanced.
     } -tags {create update browser}
 
@@ -70,13 +70,13 @@ object iom_ {
 }
 
 page /object iom "IOM" {
-    <<sotitle>>
+    <sotitle>
 
-    <<iom_ overview>><p>
+    <iom_ overview><p>
 
     IOMs have the following attributes:<p>
 
-    <<iom_ parmlist>>
+    <iom_ parmlist>
 }
 
 

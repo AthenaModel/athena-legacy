@@ -20,14 +20,14 @@ object hook_ {
         A <i>Semantic Hook</i> is part of a information operations
         campaign intended to sway civilian attitudes.  The semantic 
         hook consists of a narrative and a set of postions on one or 
-        more <<term topic>>s defined in Athena's <<term bsystem>>.  
+        more <term topic>s defined in Athena's <term bsystem>.  
         The semantic hook should appeal to those topics that matter 
         to the civilians in order for it to be effective.  The semantic
-        hook along with one or more <<term payload>>s make up an Information
-        Operations Message or <<term iom>>.
+        hook along with one or more <term payload>s make up an Information
+        Operations Message or <term iom>.
 
         Semantic Hooks are created and edited on the 
-        <<cref /tab/information/semantic_hooks>>.<p>
+        <cref /tab/information/semantic_hooks>.<p>
 
     }
 
@@ -47,13 +47,13 @@ object hook_ {
 }
 
 page /object hook "Semantic Hook" {
-    <<sotitle>>
+    <sotitle>
 
-    <<hook_ overview>><p>
+    <hook_ overview><p>
 
     Semantic hooks have the following attributes:<p>
 
-    <<hook_ parmlist>>
+    <hook_ parmlist>
 }
 
 #----------------------------------------------------------------------
@@ -63,10 +63,10 @@ object hook_topic {
     noun "hook topic"
 
     overview {
-        One or more hook topics are associated with a <<term hook>>
-        in order to appeal to the <<term bsystem>> of civilians.
-        It consists of a belief system <<term topic>> and a 
-        <<term position>> on that topic.  A narrative is computed
+        One or more hook topics are associated with a <term hook>
+        in order to appeal to the <term bsystem> of civilians.
+        It consists of a belief system <term topic> and a 
+        <term position> on that topic.  A narrative is computed
         from the topic and position as an aid to the analyst.
     }
 
@@ -88,26 +88,26 @@ object hook_topic {
         One of "normal", "disabled" or "invalid".  A hook topic that is
         "disabled" or "invalid" will not be considered as part of the 
         semantic hook.  A hook topic can become "invalid" if the the topic
-        is deleted from the <<term bsystem>>.
+        is deleted from the <term bsystem>.
     } 
 
     attribute position "Position" {
-        A hook topic must take a <<term position>> on the specified belief 
+        A hook topic must take a <term position> on the specified belief 
         system topic. This parameter specifies the position expressed as
         a real number, or as one of the symbols from the following table:<p>
 
-        <<::simlib::qposition html>>
+        <super ::simlib::qposition html>
     } -tags {create update browser}
 }
 
 page /object/hook topic "Semantic Hook Topic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<hook_topic overview>><p>
+    <hook_topic overview><p>
 
     Hook Topics have the following attributes:<p>
 
-    <<hook_topic parmlist>>
+    <hook_topic parmlist>
 }
 
 

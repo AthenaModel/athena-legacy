@@ -2,8 +2,10 @@
 project athena-sim 6.3.1a0 {Athena Regional Stability Simulation}
 poc William.H.Duquette@jpl.nasa.gov
 
-app athena   -apptype exe -gui
-app cellide  -apptype exe -gui
+# Applications
+app athena -apptype exe -gui
+app cellide -apptype exe -gui
+app helptool -apptype kit -gui
 
 # External Dependencies
 require snit 2.3
@@ -24,7 +26,14 @@ require tls 1.6
 require tdom 0.8
 require struct::set 2.2
 require kiteutils 0.4.0a0 -local
-require marsutil 3.0.2a0  -local
+require kitedocs 0.4.0a0 -local
+require marsutil 3.0.2a0 -local
 require marsgui 3.0.2a0 -local
 require simlib 3.0.2a0 -local
 require Marsbin 3.0.2a0 -local
+
+shell {
+    catch {rename echo ""}
+    package require projectlib
+    namespace import projectlib::*
+}

@@ -14,41 +14,41 @@
 #-----------------------------------------------------------------------
 
 page /order strategy "Strategy Orders" {
-    <<title>>
+    <title>
 
     These orders are used to update and manage the 
-    <<term agent agents>>' <<term strategy strategies>> and 
-    the <<term block blocks>> they contain.<p>
+    <term agent agents>' <term strategy strategies> and 
+    the <term block blocks> they contain.<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 #-----------------------------------------------------------------------
 
 order STRATEGY:BLOCK+ADD "Add Block to Strategy" {
-    <b><<term prep>> Only.</b>  Adds an empty <<term block>> to the strategy.  
+    <b><term prep> Only.</b>  Adds an empty <term block> to the strategy.  
     The order parameters are as follows:<p>
 
-    <<parmlist>>
-    <<parm agent "Agent">>
-    The name of the <<term agent>> to whom the strategy belongs.
-    <</parm>>
+    <parmlist>
+    <parm agent "Agent">
+    The name of the <term agent> to whom the strategy belongs.
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 }
 
 #-----------------------------------------------------------------------
 
 order STRATEGY:BLOCK+MOVE "Move Block in Strategy" {
-    <b><<term prep>> Only.</b>  A <<term strategy>> lists 
-    <<term block blocks>> in priority order.  This order moves a
+    <b><term prep> Only.</b>  A <term strategy> lists 
+    <term block blocks> in priority order.  This order moves a
     block to a different spot in the list, thus changing its
     priority.  The order parameters are as follows:<p>
 
-    <<parmlist>>
-    <<block_ parm block_id -required>>
+    <parmlist>
+    <block_ parm block_id -required>
     
-    <<parm where "Where">>
+    <parm where "Where">
     Where to move the block, one of the following symbolic values:<p>
 
     <b>top</b>: Move to top<br>
@@ -56,21 +56,21 @@ order STRATEGY:BLOCK+MOVE "Move Block in Strategy" {
     <b>down</b>: Move down one slot<br>
     <b>bottom</b>: Move to bottom<p>
 
-    <</parm>>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 }
 
 #-----------------------------------------------------------------------
 
 order STRATEGY:BLOCK+DELETE "Delete Block from Strategy" {
-    <b><<term prep>> Only.</b>  Deletes one or more blocks from a strategy.
+    <b><term prep> Only.</b>  Deletes one or more blocks from a strategy.
     The order parameters are as follows:<p>
 
-    <<parmlist>>
-    <<parm ids "IDs">>
+    <parmlist>
+    <parm ids "IDs">
     A list of the IDs of the blocks to delete.
-    <</parm>>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 }

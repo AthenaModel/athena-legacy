@@ -24,11 +24,11 @@
 #-----------------------------------------------------------------------
 
 page / menu "Application Menus" {
-    <<title>>
+    <title>
     The Athena main menu bar provides access to most of Athena's
     functionality.  The full set of menus is as follows:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 # menu name
@@ -44,7 +44,7 @@ proc menu {name text} {
     set tlinks "[name2pathlinks /menu / $name] Menu"
 
     page $parent $slug $title \
-        "<<title [list $tlinks]>>\n\n$text"
+        "<title [list $tlinks]>\n\n$text"
 }
 
 proc menuitem {name text} {
@@ -53,7 +53,7 @@ proc menuitem {name text} {
     set tlinks [name2pathlinks /menu / $name]
 
     page $parent $slug $name \
-        "<<mktitle small {Menu Item} [list $tlinks] {}>>\n\n$text"
+        "<mktitle small {Menu Item} [list $tlinks] {}>\n\n$text"
 }
 
 #=======================================================================
@@ -63,12 +63,12 @@ menu "File" {
     Athena's File menu contains the usual kinds of things, as listed
     below:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 menuitem "File/New Scenario..." {
     Closes the current scenario and creates a new, blank scenario,
-    loading the user's default <<cref /parmdb "model parameter">>
+    loading the user's default <cref /parmdb "model parameter">
     settings.
 }
 
@@ -95,12 +95,12 @@ menuitem "File/Save Scenario As..." {
 menuitem "File/Export Scenario As..." {
     Saves the current scenario to disk as a minimal order script,
     prompting for a new file name.  This menu item is equivalent
-    to the <<cref /command/export>> executive command.
+    to the <cref /command/export> executive command.
 }
 
 menuitem "File/Save CLI Scrollback Buffer..." {
     Saves the contents of the main window's Command Line Interface
-    (<<term cli>>) scrollback buffer to disk as a text file.<p>
+    (<term cli>) scrollback buffer to disk as a text file.<p>
 
     This menu item appears only in the main application window.
 }
@@ -112,31 +112,31 @@ menuitem "File/Import Map From File..." {
 
 menuitem "File/Import Map From WMS..." {
     Imports an image file from a Web Map Service (WMS) server using
-    Athena's integrated <<cref /wms "WMS client">>. The image
+    Athena's integrated <cref /wms "WMS client">. The image
     is automatically geo-referenced.
 }
 
 menu "File/Parameters" {
     The items on this menu relate to the Athena 
-    <<cref /parmdb>>.<p>
+    <cref /parmdb>.<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 menuitem "File/Parameters/Import..." {
-    Imports <<cref /parmdb "model parameter">> settings into the 
+    Imports <cref /parmdb "model parameter"> settings into the 
     scenario from a ".parmdb" file on the disk.<p>
     
-    This menu item is equivalent to the <<command parm import>> command.
+    This menu item is equivalent to the <command parm import> command.
 }
 
 menuitem "File/Parameters/Export..." {
-    Exports the scenario's current <<cref /parmdb "model parameter">>
+    Exports the scenario's current <cref /parmdb "model parameter">
     settings to 
     a ".parmdb" file.  Note that only parameters whose values differ
     from the installation defaults are included.<p>
 
-    This menu item is equivalent to the <<command parm export>> command.
+    This menu item is equivalent to the <command parm export> command.
 }
 
 menuitem "File/Exit" {
@@ -153,12 +153,12 @@ menu "Edit" {
     This is a typical application "Edit" menu.  The menu items are as
     follows:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 menuitem "Edit/Undo" {
     Undoes the most recent order, if possible.  The 
-    <<tab Orders>> shows the orders that can be
+    <tab Orders> shows the orders that can be
     undone (among other things).<p>
 
     The undo stack is cleared when the scenario is saved, and when 
@@ -198,27 +198,27 @@ menu "View" {
     in the window; selecting a tab's menu item makes
     the associated tab visible.<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 menuitem "View/Bookmarks" {
-    Selecting this time shows or hides the <<tab Bookmarks>>.
+    Selecting this time shows or hides the <tab Bookmarks>.
 }
 
 menuitem "View/Order History" {
-    Selecting this item shows or hides the <<tab Orders>>.
+    Selecting this item shows or hides the <tab Orders>.
 }
 
 menuitem "View/Scrolling Log" {
-    Selecting this item shows or hides the <<tab Log>>.
+    Selecting this item shows or hides the <tab Log>.
 }
 
 menuitem "View/Scripts Editor" {
-    Selecting this item shows or hides the <<tab Scripts>>.
+    Selecting this item shows or hides the <tab Scripts>.
 }
 
 menuitem "View/Command Line" {
-    Selecting this item shows or hides the <<term cli>>.
+    Selecting this item shows or hides the <term cli>.
 }
 
 #=======================================================================
@@ -226,20 +226,20 @@ menuitem "View/Command Line" {
 
 menu "Bookmarks" {
     This menu allows the user to create and access 
-    <<cref /tab/detail "Detail Browser">> bookmarks.
+    <cref /tab/detail "Detail Browser"> bookmarks.
     All existing bookmarks are appended to the end of the menu.
 
-    <<childlinks>>
+    <childlinks>
 }
 
 menuitem "Bookmarks/Bookmark This Page..." {
-    Pops up the <<cref /order/bookmark/create>> order dialog, allowing
+    Pops up the <cref /order/bookmark/create> order dialog, allowing
     the user to create a bookmark to the page currently displayed in the
-    <<cref /tab/detail "Detail Browser">>.
+    <cref /tab/detail "Detail Browser">.
 }
 
 menuitem "Bookmarks/Show All Bookmarks..." {
-    Opens the <<tab Bookmarks>>, where the user can create, rename, delete, 
+    Opens the <tab Bookmarks>, where the user can create, rename, delete, 
     and re-order his bookmarks.
 }
 
@@ -250,7 +250,7 @@ menuitem "Bookmarks/Show All Bookmarks..." {
 menu "Orders" {
     This menu provides one means of access to Athena's simulation
     orders, which are used to build the scenario and control its
-    execution.  See the <<cref /order>> documentation for complete
+    execution.  See the <cref /order> documentation for complete
     information on Athena's orders.<p>
 }
 
@@ -262,52 +262,52 @@ menu "Help" {
     This menu provides access to Athena's on-line help, as you have
     evidently discovered.  The specific items are as follows:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 menuitem "Help/Help Contents" {
     This menu item pops up the on-line help's 
-    <<cref / "table of contents">>.
+    <cref / "table of contents">.
 }
 
 menuitem "Help/Application Menus" {
-    This menu item pops up the on-line help for the <<cref /menu>>, 
+    This menu item pops up the on-line help for the <cref /menu>, 
     which you are currently reading.
 }
 
 menuitem "Help/Application Tabs" {
-    This menu item pops up the on-line help for the various <<cref /tab>>
+    This menu item pops up the on-line help for the various <cref /tab>
     used to browse the current state of the simulation.
 }
 
 menuitem "Help/Orders" {
     This menu item pops up the reference material for each of
-    Athena's simulation <<cref /order>>.
+    Athena's simulation <cref /order>.
 }
 
 menuitem "Help/Display Variables" {
     This menu item pops up the reference material for each of the
-    neighborhood and time-related <<cref /var>> that can be plotted
-    or used to color neighborhoods on the <<tab Physical/Map>>.
+    neighborhood and time-related <cref /var> that can be plotted
+    or used to color neighborhoods on the <tab Physical/Map>.
 }
 
 menuitem "Help/Executive Commands" {
     This menu item pops up the reference material for each of 
-    Athena's <<cref /command>>.
+    Athena's <cref /command>.
 }
 
 menuitem "Help/Model Parameters" {
     This menu item pops up the reference material for each of 
-    the <<cref /parmdb>> used to calibrate Athena's models.
+    the <cref /parmdb> used to calibrate Athena's models.
 }
 
 menuitem "Help/Release Notes" {
-    This menu item displays the <<cref /release>> for this release
+    This menu item displays the <cref /release> for this release
     of Athena.
 }
 
 menuitem "Help/About Athena" {
-    This menu item displays basic information <<cref /about>>,
+    This menu item displays basic information <cref /about>,
     including the copyright.
 }
 

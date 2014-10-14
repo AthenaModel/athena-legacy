@@ -16,14 +16,14 @@
 #-----------------------------------------------------------------------
 
 page / prefs "User Preferences" {
-    <<title>>
+    <title>
     User preferences are user-specific settings that customize
     the behavior of the application.  As such, preference parameters
     affect the user experience, but not the simulation outputs.
     Preference values can be queried and set using the
-    <<command prefs>> executive command.<p>
+    <command prefs> executive command.<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 
@@ -48,7 +48,7 @@ proc prefpage {parm itemtype} {
 
     set toplink "<a href=\"/prefs\">User Preference</a>"
 
-    set text "<<mktitle small {$toplink} {$tlinks} {}>>\n\n"
+    set text "<mktitle small {$toplink} {$tlinks} {}>\n\n"
 
     if {$itemtype ne "subset"} {
         append text \
@@ -59,7 +59,7 @@ proc prefpage {parm itemtype} {
     append text "<p>"
 
     if {$itemtype eq "subset"} {
-        append text "\n<<childlinks>>"
+        append text "\n<childlinks>"
     }
 
     page $parent $slug $title $text

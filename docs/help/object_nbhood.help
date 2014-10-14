@@ -29,9 +29,9 @@ object nbhood_ {
         cannot cover another neighborhood's reference point.<p>
 
         Neighborhoods can be created on the 
-        <<tab Physical/Map>> during <<term prep>>, and manipulated
-        on the <<tab Physical/Neighborhoods>> and using the
-        <<cref /order/nbhood>>.
+        <tab Physical/Map> during <term prep>, and manipulated
+        on the <tab Physical/Neighborhoods> and using the
+        <cref /order/nbhood>.
     }
 
     attribute n "Neighborhood ID" {
@@ -54,18 +54,18 @@ object nbhood_ {
         Local neighborhoods participate in the regional economy; other
         neighborhoods do not.<p>
 
-        <<enumdoc ::projectlib::eyesno>>
+        <enumdoc ::projectlib::eyesno>
     } -tags {create update multi optraw}
 
     attribute urbanization "Urbanization" {
         The neighborhood's urbanization level:<p>
 
-        <<enumdoc ::projectlib::eurbanization>>
+        <enumdoc ::projectlib::eurbanization>
     } -tags {create update multi optraw}
 
     attribute controller "Controller" {
         A neighborhood can be controlled by at most one 
-        <<term actor>>.  During <<term prep>>, this is the actor
+        <term actor>.  During <term prep>, this is the actor
         initially in control of the neighborhood.  The attribute may
         be blank if no actor is initially in control.  As the
         simulation runs, control can shift from actor to actor.
@@ -99,25 +99,25 @@ object nbhood_ {
 
     attribute refpoint "Reference Point" {
         The neighborhood's reference point, expressed either as
-        a <<term mapref>> or as a lat/long coordinate pair.  The reference
+        a <term mapref> or as a lat/long coordinate pair.  The reference
         point is a location within the neighborhood that is guaranteed not 
         to be obscured by an overlapping or nested neighborhood.  
     } -tags {create raw update}
 
     attribute polygon "Polygon" {
         The neighborhood's boundary polygon, expressed as
-        a list of <<term mapref>>s or as a list of lat/long coordinate pairs.
+        a list of <term mapref>s or as a list of lat/long coordinate pairs.
     } -tags {create raw update}
 }
 
 page /object nbhood "Neighborhood" {
-    <<sotitle>>
+    <sotitle>
 
-    <<nbhood_ overview>><p>
+    <nbhood_ overview><p>
 
     Neighborhoods have the following attributes:<p>
 
-    <<nbhood_ parmlist>>
+    <nbhood_ parmlist>
 }
 
 

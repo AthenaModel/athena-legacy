@@ -24,14 +24,16 @@ namespace eval ::kiteinfo:: {
         reqver-ctext 3.3
         local-Marsbin 1
         local-Img 0
+        local-kitedocs 1
         reqver-comm 4.6
         reqver-tdom 0.8
         local-Tktable 0
         local-simlib 1
-        apps {athena cellide}
+        apps {athena cellide helptool}
         local-Tkhtml 0
         local-fileutil 0
         dists {}
+        reqver-kitedocs 0.4.0a0
         local-textutil::adjust 0
         local-tablelist 0
         local-treectrl 0
@@ -54,8 +56,13 @@ namespace eval ::kiteinfo:: {
         provides {}
         description {Athena Regional Stability Simulation}
         local-BWidget 0
+        apptype-helptool kit
         reqver-sqlite3 3.8.5
-        shell {}
+        shell {
+    catch {rename echo ""}
+    package require projectlib
+    namespace import projectlib::*
+}
         reqver-snit 2.3
         reqver-textutil::expander 1.3
         local-ctext 0
@@ -64,10 +71,11 @@ namespace eval ::kiteinfo:: {
         local-sqlite3 0
         reqver-tablelist 5.11
         reqver-struct::set 2.2
+        gui-helptool 1
         reqver-simlib 3.0.2a0
         local-struct::set 0
         reqver-Tkhtml 3.0
-        requires {snit comm Img BWidget Tktable treectrl sqlite3 tablelist textutil::expander textutil::adjust Tkhtml uri fileutil ctext tls tdom struct::set kiteutils marsutil marsgui simlib Marsbin}
+        requires {snit comm Img BWidget Tktable treectrl sqlite3 tablelist textutil::expander textutil::adjust Tkhtml uri fileutil ctext tls tdom struct::set kiteutils kitedocs marsutil marsgui simlib Marsbin}
         poc William.H.Duquette@jpl.nasa.gov
         srcs {}
         local-comm 0

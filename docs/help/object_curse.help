@@ -19,7 +19,7 @@ object curse_ {
     overview {
         A <i>CURSE</i> is a Complex User-defined Role-based Simulation
         and Events object. It consists of some user specified description
-        (ie. "Flood") and contains one or more <<term inject>>s that 
+        (ie. "Flood") and contains one or more <term inject>s that 
         cause the required changes to satisfaction, cooperation, and 
         horizontal and vertical relationships that simulate the 
         <i>CURSE</i> being modeled.<p>
@@ -29,12 +29,12 @@ object curse_ {
         reason, however, that they cannot be used for simple, less
         invasive injects into Athena.<p>
 
-        CURSEs are executed using the CURSE <<term tactic>>.  Thus, the
+        CURSEs are executed using the CURSE <term tactic>.  Thus, the
         SYSTEM agent can be given a strategy that employs CURSE tactics
         to cause the CURSE to happen whenever the analyst likes.<p>
 
         CURSEs are created and edited on the 
-        <<cref /tab/physical/curses>>.<p>
+        <cref /tab/physical/curses>.<p>
 
     }
 
@@ -54,12 +54,12 @@ object curse_ {
     } -tags {create update browser}
 
     attribute cause "Cause" {
-        The <<term cause>> for any <<term inject>> associated with this
+        The <term cause> for any <term inject> associated with this
         CURSE.  The cause may be <b>UNIQUE</b>, indicating that the effects
         of this CURSE are independant of all other drivers, or it may be
         any cause from the following list:<p>
 
-        <<enumdoc ::projectlib::ecause>>
+        <enumdoc ::projectlib::ecause>
 
     } -tags {create update browser}
 
@@ -92,13 +92,13 @@ object curse_ {
 }
 
 page /object curse "CURSE" {
-    <<sotitle>>
+    <sotitle>
 
-    <<curse_ overview>><p>
+    <curse_ overview><p>
 
     CURSEs have the following attributes:<p>
 
-    <<curse_ parmlist>>
+    <curse_ parmlist>
 }
 
 

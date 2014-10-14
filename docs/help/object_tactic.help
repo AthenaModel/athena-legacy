@@ -18,15 +18,15 @@
 object tactic_ {
     noun "tactic"
     overview {
-        Tactics are the <<cref /object>> by which an
-        <<term agent>> implements his <<term strategy>>.  For
-        example, an <<term actor>> may use the 
-        <<cref /object/tactic/deploy>>
+        Tactics are the <cref /object> by which an
+        <term agent> implements his <term strategy>.  For
+        example, an <term actor> may use the 
+        <cref /object/tactic/deploy>
         to position troops in a neighborhood, and then use the
-        <<cref /object/tactic/assign>> activities to them.  
-        Tactics may have <<term condition>>s attached
+        <cref /object/tactic/assign> activities to them.  
+        Tactics may have <term condition>s attached
         to them.  Tactics are browsed and 
-        edited on the <<tab Strategy>>.
+        edited on the <tab Strategy>.
     }
 
     # The tactic ID for the object page
@@ -43,17 +43,17 @@ object tactic_ {
     } -tags {cget}
 
     attribute agent "Agent" {
-        The ID of the <<term agent>> to whose strategy this
+        The ID of the <term agent> to whose strategy this
         tactic belongs.
     } -tags {object cget}
 
     attribute typename "Tactic Type" {
         The tactic's type, e.g., 
-        <b><<cref /object/tactic/deploy DEPLOY>></b>.
+        <b><cref /object/tactic/deploy DEPLOY></b>.
     } -tags {object cget}
 
     attribute parent "Parent" {
-        The ID of the <<term block>> containing this tactic.
+        The ID of the <term block> containing this tactic.
     } -tags {cget}
 
     attribute state "State" {
@@ -73,18 +73,18 @@ object tactic_ {
 }
 
 page /object tactic "Tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_ overview>><p>
+    <tactic_ overview><p>
 
     There are many different kinds of tactic; all share the following
     parameters:<p>
 
-    <<tactic_ parmlist -tags object>>
+    <tactic_ parmlist -tags object>
 
     The full set of tactics is as follows:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 #-----------------------------------------------------------------------
@@ -95,14 +95,14 @@ object tactic_absit {
     overview {
         <b>Can execute on lock.</b><p>
 
-        This <<term tactic>> creates an <<term absit>> of a given
-        type in a <<term nbhood>>.  The tactic may specify the 
+        This <term tactic> creates an <term absit> of a given
+        type in a <term nbhood>.  The tactic may specify the 
         coverage fraction, the duration of the situation in weeks,
         and the force group that will resolve the situation.<p>
 
         Note that this tactic is semantically equivalent to sending
-        the <<cref /order/absit/create>> order in an
-        <<cref /object/tactic/executive>>.<p>
+        the <cref /order/absit/create> order in an
+        <cref /object/tactic/executive>.<p>
 
         If multiple tactics attempt to create absits of the same type in 
         the same neighborhood with overlapping durations, only the first
@@ -114,14 +114,14 @@ object tactic_absit {
     include tactic_ -attrs state
 
     attribute n "Neighborhood" {
-        A <<term nbhood>> ID.  The situation will be created in
+        A <term nbhood> ID.  The situation will be created in
         this neighborhood.
     } -tags {update}
 
     attribute stype "Type" {
         The type of situation to create.<p>
 
-        <<enumdoc ::projectlib::eabsit>>
+        <enumdoc ::projectlib::eabsit>
     } -tags {update}
 
     attribute coverage "Coverage" {
@@ -145,19 +145,19 @@ object tactic_absit {
         specified time. If 0, no auto-resolution will take place.<p>
 
         If this value is omitted, it will default to the value of the
-        <b>absit.<i>stype</i>.duration</b> <<cref /parmdb parameter>>.
+        <b>absit.<i>stype</i>.duration</b> <cref /parmdb parameter>.
     } -tags {update}
 
 }
 
 page /object/tactic absit "ABSIT tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_absit overview>><p>
+    <tactic_absit overview><p>
 
     Abstract Situation tactics have the following attributes:<p>
 
-    <<tactic_absit parmlist>>
+    <tactic_absit parmlist>
 }
 
 
@@ -167,8 +167,8 @@ page /object/tactic absit "ABSIT tactic" {
 object tactic_accident {
     noun "ACCIDENT tactic"
     overview {
-        This <<term tactic>> creates an abstract event of type
-        "ACCIDENT" in a <<term nbhood>>, specifying the neighborhood
+        This <term tactic> creates an abstract event of type
+        "ACCIDENT" in a <term nbhood>, specifying the neighborhood
         coverage fraction.  The event will drive civilian attitudes
         in the neighborhood for each week that the tactic executes.<p>
 
@@ -181,7 +181,7 @@ object tactic_accident {
     include tactic_ -attrs state
 
     attribute n "Neighborhood" {
-        A <<term nbhood>> ID.  The event will occur in
+        A <term nbhood> ID.  The event will occur in
         this neighborhood.
     } -tags {update}
 
@@ -195,13 +195,13 @@ object tactic_accident {
 }
 
 page /object/tactic accident "ACCIDENT tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_accident overview>><p>
+    <tactic_accident overview><p>
 
     ACCIDENT tactics have the following attributes:<p>
 
-    <<tactic_accident parmlist>>
+    <tactic_accident parmlist>
 }
 
 
@@ -213,23 +213,23 @@ object tactic_assign {
     overview {
         <b>Can execute on lock.</b><p>
 
-        This <<term tactic>> assigns an 
-        abstract <<term activity>> to an <<term actor>>'s
-        <<term frcgroup>> or <<term orggroup>> personnel
-        in a particular <<term nbhood>>.  The personnel must already
-        be <<cref /object/tactic/deploy deployed>> in the
-        neighborhood.  Athena will create a <<term unit>> containing
+        This <term tactic> assigns an 
+        abstract <term activity> to an <term actor>'s
+        <term frcgroup> or <term orggroup> personnel
+        in a particular <term nbhood>.  The personnel must already
+        be <cref /object/tactic/deploy deployed> in the
+        neighborhood.  Athena will create a <term unit> containing
         the assigned personnel; the unit will be visible on the
-        <<tab Physical/Map>>.<p>
+        <tab Physical/Map>.<p>
 
         The number of troops to assign is determined by the personnel
         mode (<i>pmode</i>); see the table below.<p>
 
         The cost in dollars/person/week of assigning troops to do
         activities is defined for each activity using 
-        <<cref /parmdb>>.  Look under <<cref /parmdb/activity/frc>> and
-        <<cref /parmdb/activity/org>> for the cost parameters, e.g.,
-        <<parmdb activity.FRC.PATROL.cost>>.  By
+        <cref /parmdb>.  Look under <cref /parmdb/activity/frc> and
+        <cref /parmdb/activity/org> for the cost parameters, e.g.,
+        <parmdb activity.FRC.PATROL.cost>.  By
         default, all activity costs are set to zero.<p>
 
         Multiple ASSIGN tactics are cumulative.  The assignment lasts
@@ -241,17 +241,17 @@ object tactic_assign {
     include tactic_ -attrs state
 
     attribute g "Group" {
-        The ID of a <<term frcgroup>> or 
-        <<term orggroup>> belonging to the tactic's owning <i>agent</i>.
+        The ID of a <term frcgroup> or 
+        <term orggroup> belonging to the tactic's owning <i>agent</i>.
     } -tags {update}
 
     attribute n "Neighborhood" {
-        A <<term nbhood>> ID.  The personnel to be assigned will be 
+        A <term nbhood> ID.  The personnel to be assigned will be 
         drawn from those deployed into this neighborhood.
     } -tags {create update}
 
     attribute activity "Activity" {
-        The <<term activity>> to be assigned.  The valid
+        The <term activity> to be assigned.  The valid
         abstract activities are different for different group types;
         see <i>Athena Rules Document</i>, delivered with the software,
         for the full set.
@@ -327,13 +327,13 @@ object tactic_assign {
 }
 
 page /object/tactic assign "ASSIGN tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_assign overview>><p>
+    <tactic_assign overview><p>
 
     Assign Troops tactics have the following attributes:<p>
 
-    <<tactic_assign parmlist>>
+    <tactic_assign parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -344,7 +344,7 @@ object tactic_attrit {
     overview {
         <b>Ignored on lock.</b><p>
 
-        This <<term tactic>> causes magic attrition to a neighborhood
+        This <term tactic> causes magic attrition to a neighborhood
         or to a specific group in a neighborhood.<p>
 
         If a specific group is specified in the tactic but at execution
@@ -375,12 +375,12 @@ object tactic_attrit {
     } -tags {update}
 
     attribute n "Nbhood" {
-        A <<term nbhood>> ID.  The neighborhood in which to cause
+        A <term nbhood> ID.  The neighborhood in which to cause
         attrition.
     } -tags {update}
 
     attribute f "Group" {
-        A <<term group>> ID. If "Attrition Mode" is <b>GROUP</b> this
+        A <term group> ID. If "Attrition Mode" is <b>GROUP</b> this
         is the group that should suffer attrition.
     } -tags {update}
 
@@ -392,14 +392,14 @@ object tactic_attrit {
     } -tags {update}
 
     attribute g1 "Responsible Group" {
-        A <<term frcgroup>> ID.  A force group that is 
+        A <term frcgroup> ID.  A force group that is 
         responsible for the attrition.  This is available in <b>NBHOOD</b>
         mode or if the "Group" suffering casualties in <b>GROUP</b> mode 
         is a civilian group.
     } -tags {update}
 
     attribute g2 "Responsible Group 2" {
-        A <<term frcgroup>> ID.  A second force group that 
+        A <term frcgroup> ID.  A second force group that 
         is responsible for the attrition.  This is available in <b>NBHOOD</b> 
         mode or in <b>GROUP</b> mode if the "Group" suffering casualties is 
         a civilian group.
@@ -407,13 +407,13 @@ object tactic_attrit {
 }
 
 page /object/tactic attrit "ATTRIT tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_attrit overview>><p>
+    <tactic_attrit overview><p>
 
     Magic Attrition tactics have the following attributes:<p>
 
-    <<tactic_attrit parmlist>>
+    <tactic_attrit parmlist>
 }
 
 
@@ -425,18 +425,18 @@ object tactic_broadcast {
     overview {
         <b>Can execute on lock.</b><p>
 
-        This <<term tactic>> broadcasts an <<term iom>> via a
-        <<term cap>>.  The message may be attributed to a particular 
+        This <term tactic> broadcasts an <term iom> via a
+        <term cap>.  The message may be attributed to a particular 
         actor, including the owner, or may be anonymous.  The message
         will have a particular preparation cost, in addition to the
-        cost of transmission by the chosen <<term cap>>.<p>
+        cost of transmission by the chosen <term cap>.<p>
 
         Note that the tactic owner might or might not have access to
-        his chosen <<term cap>>, due to the decisions of the other
+        his chosen <term cap>, due to the decisions of the other
         actors.  This cannot be known until all strategies have been
         executed.  At that time, all pending broadcasts will occur;
         and if the tactic owner has no access to the chosen 
-        <<term cap>>, the broadcast will be cancelled, and the cost 
+        <term cap>, the broadcast will be cancelled, and the cost 
         will be refunded.<p>
     }
 
@@ -445,35 +445,35 @@ object tactic_broadcast {
     include tactic_ -attrs state
 
     attribute cap "CAP" {
-        The ID of a <<term cap>> by which the <<term iom>> will be 
+        The ID of a <term cap> by which the <term iom> will be 
         sent.  For a successful broadcast, the <i>owner</i> must have 
-        access to the <<term cap>>.
+        access to the <term cap>.
     } -tags {update}
 
     attribute a "Attr. Source" {
-        The attributed source: the name of an <<term actor>>, 
+        The attributed source: the name of an <term actor>, 
         <b>SELF</b> if the message is to be attributed to the 
         <i>owner</i>, or <b>NONE</b> if the message is to be anonymous.
     } -tags {update}
 
     attribute iom "Message ID" {
-        The <<term iom>> to be broadcast.
+        The <term iom> to be broadcast.
     } -tags {update}
 
     attribute cost "Prep. Cost" {
         The preparation cost for the message, as distinct from the 
-        <<term cap>>'s broadcast cost.
+        <term cap>'s broadcast cost.
     } -tags {update}
 }
 
 page /object/tactic broadcast "BROADCAST tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_broadcast overview>><p>
+    <tactic_broadcast overview><p>
 
     BROADCAST tactics have the following attributes:<p>
 
-    <<tactic_broadcast parmlist>>
+    <tactic_broadcast parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -484,7 +484,7 @@ object tactic_build {
     overview {
         <b>Ignored on lock.</b><p>
 
-        This <<term tactic>> allows an <<term actor>> to construct
+        This <term tactic> allows an <term actor> to construct
         new goods sector production infrastructure thereby increasing the
         output capacity of that sector.<p>
 
@@ -497,11 +497,11 @@ object tactic_build {
         after existing plants have had the maximum amount allocated, then new
         plants are started.  The maximum amount of construction that can
         take place on a plant each week is controlled by a 
-        <<cref /parmdb/plant "plant model parameter">>.<p>  
+        <cref /parmdb/plant "plant model parameter">.<p>  
 
         Once new infrastructure is completed, it adds to the production 
         capacity of the goods sector and it must be maintained by using 
-        the MAINTAIN <<term tactic>>.  Nominally it will take multiple weeks 
+        the MAINTAIN <term tactic>.  Nominally it will take multiple weeks 
         of construction before new infrastructure contributes to the 
         production capacity of the goods sector.<p>
 
@@ -515,7 +515,7 @@ object tactic_build {
     include tactic_ -attrs state
 
     attribute n "Nbhood" {
-        The <<term nbhood>> in which infrastructure is to be built.
+        The <term nbhood> in which infrastructure is to be built.
     } -tags {update}
 
     attribute mode "Construction Mode" {
@@ -545,13 +545,13 @@ object tactic_build {
 }
 
 page /object/tactic build "BUILD tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_build overview>><p>
+    <tactic_build overview><p>
 
     BUILD tactics have the following attributes:<p>
 
-    <<tactic_build parmlist>>
+    <tactic_build parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -561,12 +561,12 @@ object tactic_curse {
     overview {
         <b>Ignored on lock.</b><p>
 
-        This SYSTEM <<term tactic>> causes a Complex User-defined
+        This SYSTEM <term tactic> causes a Complex User-defined
         Role-based Situation and Event (or CURSE) to be executed with
         all of it's injects.  Injects associated with a CURSE cause
         changes to one or more of: Horizontal relationships, Vertical
         relationships, Satisfaction and Cooperation.  Injects are similar
-        to <<term mad>>s in that the changes to attitude are identical to 
+        to <term mad>s in that the changes to attitude are identical to 
         magic changes.  CURSEs are meant to be used when the effects of 
         something not already explictly modeled in Athena needs to be 
         injected into the simulation.
@@ -577,25 +577,25 @@ object tactic_curse {
     include tactic_ -attrs state
 
     attribute curse "CURSE ID" {
-        The ID of the <<term curse>> to be executed.
+        The ID of the <term curse> to be executed.
     } -tags {update}
 
     attribute roles "Role Mapping" {
-        The mapping of <<term role>>s to particular <<term group>>s and
-        <<term actor>>s.  The mapping of roles completely depends on the
-        types of injects defined for the <<term curse>>.
+        The mapping of <term role>s to particular <term group>s and
+        <term actor>s.  The mapping of roles completely depends on the
+        types of injects defined for the <term curse>.
     } -tags {update}
 
 }
 
 page /object/tactic curse "CURSE tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_curse overview>><p>
+    <tactic_curse overview><p>
 
     CURSE tactics have the following attributes:<p>
 
-    <<tactic_curse parmlist>>
+    <tactic_curse parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -606,14 +606,14 @@ object tactic_damage {
     overview {
         <b>Ignored on lock.</b><p>
 
-        This SYSTEM <<term tactic>> sets the average repair level for goods
-        production infrastructure <<term plant>>s owned by an <<term actor>>
-        in a <<term nbhood>>.  It's possible to use this tactic not only to 
+        This SYSTEM <term tactic> sets the average repair level for goods
+        production infrastructure <term plant>s owned by an <term actor>
+        in a <term nbhood>.  It's possible to use this tactic not only to 
         decrease average repair levels, but increase them as well.<p>
 
         This tactic consumes no resources, and consequently never fails
-        due to lack of resources.   If the <<term actor>> specified does
-        not own any infrastructure in the <<term nbhood>> specified the 
+        due to lack of resources.   If the <term actor> specified does
+        not own any infrastructure in the <term nbhood> specified the 
         tactic will execute trivially without changing anything.<p>
     }
 
@@ -622,11 +622,11 @@ object tactic_damage {
     include tactic_ -attrs state
 
     attribute a "Actor" {
-        The ID of an <<term actor>> that owns infrastructure.
+        The ID of an <term actor> that owns infrastructure.
     } -tags {update}
 
     attribute n "Nbhood" {
-        The <<term nbhood>> for which the average repair will be set.
+        The <term nbhood> for which the average repair will be set.
     } -tags {update}
 
     attribute percent "Repair Level" {
@@ -635,13 +635,13 @@ object tactic_damage {
 }
 
 page /object/tactic damage "DAMAGE tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_damage overview>><p>
+    <tactic_damage overview><p>
 
     Damage infrastructure tactics have the following attributes:<p>
 
-    <<tactic_damage parmlist>>
+    <tactic_damage parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -650,8 +650,8 @@ page /object/tactic damage "DAMAGE tactic" {
 object tactic_demo {
     noun "DEMO tactic"
     overview {
-        This <<term tactic>> creates an abstract event of type
-        "DEMO" (non-violent demonstration) in a <<term nbhood>>, 
+        This <term tactic> creates an abstract event of type
+        "DEMO" (non-violent demonstration) in a <term nbhood>, 
         specifying demonstrating group and the neighborhood
         coverage fraction.  The event will drive civilian attitudes
         in the neighborhood for each week that the tactic executes.<p>
@@ -665,12 +665,12 @@ object tactic_demo {
     include tactic_ -attrs state
 
     attribute n "Neighborhood" {
-        A <<term nbhood>> ID.  The event will occur in
+        A <term nbhood> ID.  The event will occur in
         this neighborhood.
     } -tags {update}
 
     attribute g "Demonstrating Group" {
-        The <<term civgroup>> ID of the group that is demonstrating.
+        The <term civgroup> ID of the group that is demonstrating.
         The group need not be a resident of the neighborhood.
     } -tags {update}
 
@@ -684,13 +684,13 @@ object tactic_demo {
 }
 
 page /object/tactic demo "DEMO tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_demo overview>><p>
+    <tactic_demo overview><p>
 
     DEMO tactics have the following attributes:<p>
 
-    <<tactic_demo parmlist>>
+    <tactic_demo parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -702,8 +702,8 @@ object tactic_demob {
         <b>Ignored on lock.</b><p>
 
         This tactic demobilizes 
-        <<term frcgroup>> or 
-        <<term orggroup>> personnel,
+        <term frcgroup> or 
+        <term orggroup> personnel,
         i.e., it removes them from the playbox.  Only personnel available
         for deployment can be demobilized.<p>
 
@@ -724,8 +724,8 @@ object tactic_demob {
     include tactic_ -attrs state
 
     attribute g "Group" {
-        The ID of a <<term frcgroup>> or 
-        <<term orggroup>> belonging to the tactic's owning <i>agent</i>.
+        The ID of a <term frcgroup> or 
+        <term orggroup> belonging to the tactic's owning <i>agent</i>.
     } -tags {update}
 
     attribute mode "Mode" {
@@ -765,13 +765,13 @@ object tactic_demob {
 }
 
 page /object/tactic demob "DEMOB tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_demob overview>><p>
+    <tactic_demob overview><p>
 
     Demobilization tactics have the following attributes:<p>
 
-    <<tactic_demob parmlist>>
+    <tactic_demob parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -782,10 +782,10 @@ object tactic_deploy {
     overview {
         <b>Can execute on lock.</b><p>
 
-        This <<term tactic>> deploys an <<term actor>>'s
-        <<term frcgroup>> or <<term orggroup>> personnel
-        into particular <<term nbhood>>s.  The personnel must already
-        be present in the <<term playbox>>.  The group's maintenance
+        This <term tactic> deploys an <term actor>'s
+        <term frcgroup> or <term orggroup> personnel
+        into particular <term nbhood>s.  The personnel must already
+        be present in the <term playbox>.  The group's maintenance
         cost is paid for each person deployed.  Once deployed, the
         personnel may then be assigned to particular tasks.<p>
 
@@ -794,7 +794,7 @@ object tactic_deploy {
 
         The chosen troops are deployed into the neighborhoods
         indicated by the neighborhood list, a 
-        <<cref /gofer/nbhoods>> value, according to the
+        <cref /gofer/nbhoods> value, according to the
         neighborhood mode (<i>nmode</i>):<p>
 
         <b>Redeployment and Existing Deployments</b>
@@ -819,8 +819,8 @@ object tactic_deploy {
     include tactic_ -attrs state
 
     attribute g "Group" {
-        The ID of a <<term frcgroup>> or 
-        <<term orggroup>> belonging to the tactic's owning <i>agent</i>.
+        The ID of a <term frcgroup> or 
+        <term orggroup> belonging to the tactic's owning <i>agent</i>.
     } -tags {update}
 
     attribute pmode "Personnel Mode" {
@@ -892,8 +892,8 @@ object tactic_deploy {
     } -tags {update}
 
     attribute nlist "In Neighborhoods" {
-        A <<cref /gofer/nbhoods>> value, which will be evaluated to determine
-        the list of <<term nbhood>> IDs when the tactic is executed.
+        A <cref /gofer/nbhoods> value, which will be evaluated to determine
+        the list of <term nbhood> IDs when the tactic is executed.
     } -tags {create update}
 
     attribute nmode "Neighborhood Mode" {
@@ -919,13 +919,13 @@ object tactic_deploy {
 }
 
 page /object/tactic deploy "DEPLOY tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_deploy overview>><p>
+    <tactic_deploy overview><p>
 
     Deploy Troops tactics have the following attributes:<p>
 
-    <<tactic_deploy parmlist>>
+    <tactic_deploy parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -937,10 +937,10 @@ object tactic_deposit {
     overview {
         <b>Ignored on lock.</b><p>
 
-        This <<term tactic>> allows the <<term actor>> to deposit
+        This <term tactic> allows the <term actor> to deposit
         a sum of money from his cash-on-hand into his cash reserve.
         The funds can then be withdrawn for spending using the
-        <<cref /object/tactic/withdraw>>.
+        <cref /object/tactic/withdraw>.
 
         There are several ways to select how much money should be 
         deposited to cash-on-hand; see the "Mode" parameter below.
@@ -999,13 +999,13 @@ object tactic_deposit {
 }
 
 page /object/tactic deposit "DEPOSIT tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_deposit overview>><p>
+    <tactic_deposit overview><p>
 
     Deposit tactics have the following attributes:<p>
 
-    <<tactic_deposit parmlist>>
+    <tactic_deposit parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1016,8 +1016,8 @@ object tactic_executive {
     overview {
         <b>Can execute on lock.</b><p>
         
-        This <<term tactic>> executes an Athena 
-        <<cref /command "executive command">>, possibly affecting the 
+        This <term tactic> executes an Athena 
+        <cref /command "executive command">, possibly affecting the 
         state of the simulation.
         The tactic succeeds if the command returns normally, and fails
         if the command throws an error.  In the latter case, any
@@ -1030,20 +1030,20 @@ object tactic_executive {
     include tactic_ -attrs state
 
     attribute command "Command" {
-        The <<cref /command command>> to execute, often a 
-        <<cref /command/call>> or a user-defined command defined
-        in the <<tab "Scripts">>.
+        The <cref /command command> to execute, often a 
+        <cref /command/call> or a user-defined command defined
+        in the <tab "Scripts">.
     } -tags {update}
 }
 
 page /object/tactic executive "EXECUTIVE tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_executive overview>><p>
+    <tactic_executive overview><p>
 
     EXECUTIVE tactics have the following attributes:<p>
 
-    <<tactic_executive parmlist>>
+    <tactic_executive parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1052,8 +1052,8 @@ page /object/tactic executive "EXECUTIVE tactic" {
 object tactic_explosion {
     noun "EXPLOSION tactic"
     overview {
-        This <<term tactic>> creates an abstract event of type
-        "EXPLOSION" in a <<term nbhood>>, specifying the neighborhood
+        This <term tactic> creates an abstract event of type
+        "EXPLOSION" in a <term nbhood>, specifying the neighborhood
         coverage fraction.  The event will drive civilian attitudes
         in the neighborhood for each week that the tactic executes.<p>
 
@@ -1066,7 +1066,7 @@ object tactic_explosion {
     include tactic_ -attrs state
 
     attribute n "Neighborhood" {
-        A <<term nbhood>> ID.  The event will occur in
+        A <term nbhood> ID.  The event will occur in
         this neighborhood.
     } -tags {update}
 
@@ -1080,13 +1080,13 @@ object tactic_explosion {
 }
 
 page /object/tactic explosion "EXPLOSION tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_explosion overview>><p>
+    <tactic_explosion overview><p>
 
     EXPLOSION tactics have the following attributes:<p>
 
-    <<tactic_explosion parmlist>>
+    <tactic_explosion parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1098,7 +1098,7 @@ object tactic_flow {
     overview {
         <b>Ignored on lock.</b><p>
 
-        This SYSTEM <<term tactic>> causes population to flow from
+        This SYSTEM <term tactic> causes population to flow from
         one civilian group to another.  There are several ways to specify
         the number of people to transfer between the groups.  
         The transfer is permanent, unless reversed explicitly by 
@@ -1113,12 +1113,12 @@ object tactic_flow {
     include tactic_ -attrs state
 
     attribute f "Source Group" {
-        The ID of the <<term civgroup>> from which the population
+        The ID of the <term civgroup> from which the population
         will flow.
     } -tags {update}
 
     attribute g "Destination Group" {
-        The ID of the <<term civgroup>> to which the population will
+        The ID of the <term civgroup> to which the population will
         flow.
     } -tags {update}
 
@@ -1165,13 +1165,13 @@ object tactic_flow {
 }
 
 page /object/tactic flow "FLOW tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_flow overview>><p>
+    <tactic_flow overview><p>
 
     Flow Personnel tactics have the following attributes:<p>
 
-    <<tactic_flow parmlist>>
+    <tactic_flow parmlist>
 }
 
 
@@ -1185,8 +1185,8 @@ object tactic_fund {
     overview {
         <b>Ignored on lock.</b><p>
 
-        This <<term tactic>> allows an <<term actor>> to give
-        a sum of money from his cash-on-hand to another <<term actor>>. 
+        This <term tactic> allows an <term actor> to give
+        a sum of money from his cash-on-hand to another <term actor>. 
 
         There are several ways to select how much money should be 
         taken from cash-on-hand for funding; see the "Mode" parameter below.
@@ -1200,7 +1200,7 @@ object tactic_fund {
     include tactic_ -attrs state
 
     attribute a "Actor" {
-        The ID of an <<term actor>> to receive the cash.
+        The ID of an <term actor> to receive the cash.
     } -tags {update}
 
     attribute mode "Mode" {
@@ -1249,13 +1249,13 @@ object tactic_fund {
 }
 
 page /object/tactic fund "FUND tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_fund overview>><p>
+    <tactic_fund overview><p>
 
     Fund tactics have the following attributes:<p>
 
-    <<tactic_fund parmlist>>
+    <tactic_fund parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1267,9 +1267,9 @@ object tactic_fundeni {
     overview {
         <b>Can execute on lock.</b><p>
 
-        This <<term tactic>> funds Essential Non-Infrastructure (ENI) 
-        services for one or more <<term civgroup>>s living in 
-        <<term local_economy "local">> neighborhoods.  The <<term actor>>
+        This <term tactic> funds Essential Non-Infrastructure (ENI) 
+        services for one or more <term civgroup>s living in 
+        <term local_economy "local"> neighborhoods.  The <term actor>
         may specify any amount of money, which will come out of the 
         actor's cash-on-hand.  If the cash is unavailable, the groups
         will not be funded.<p>
@@ -1328,7 +1328,7 @@ object tactic_fundeni {
 
     attribute glist "Groups"  {
         The IDs of one or more civilian groups, or
-        a <<cref /gofer/civgroups>> value.<p>
+        a <cref /gofer/civgroups> value.<p>
 
         The tactic will attempt to fund all groups returned by the 
         selected gofer value.  However, the tactic will never fund
@@ -1375,13 +1375,13 @@ object tactic_fundeni {
 }
 
 page /object/tactic fundeni "FUNDENI tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_fundeni overview>><p>
+    <tactic_fundeni overview><p>
 
     Fund ENI tactics have the following attributes:<p>
 
-    <<tactic_fundeni parmlist>>
+    <tactic_fundeni parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1392,11 +1392,11 @@ object tactic_grant {
     overview {
         <b>Can execute on lock.</b><p>
 
-        This <<term tactic>> grants one or more <<term actor>>s access to
-        one or more of the tactic owner's <<term cap>>s.  The actors 
+        This <term tactic> grants one or more <term actor>s access to
+        one or more of the tactic owner's <term cap>s.  The actors 
         granted access can then 
-        <<cref /object/tactic/broadcast broadcast>> 
-        <<term iom>>s via any of the listed <<term cap>>s.<p>
+        <cref /object/tactic/broadcast broadcast> 
+        <term iom>s via any of the listed <term cap>s.<p>
 
         This tactic can execute on lock.  It never fails due to lack of 
         resources.
@@ -1407,25 +1407,25 @@ object tactic_grant {
     include tactic_ -attrs state
 
     attribute klist "CAP List" {
-        A list of one or more <<term cap>>s belonging to the 
+        A list of one or more <term cap>s belonging to the 
         <i>agent</i>.
     } -tags {update}
 
     attribute alist "Actor List" {
-        An <<cref /gofer/actors>> value specifying a list of one or 
-        more <<term actor>>s.
+        An <cref /gofer/actors> value specifying a list of one or 
+        more <term actor>s.
     } -tags {update}
 
 }
 
 page /object/tactic grant "GRANT tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_grant overview>><p>
+    <tactic_grant overview><p>
 
     Grant Access tactics have the following attributes:<p>
 
-    <<tactic_grant parmlist>>
+    <tactic_grant parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1437,9 +1437,9 @@ object tactic_maintain {
     overview {
         <b>Ignored on lock.</b><p>
 
-        This <<term tactic>> spends money to maintain the GOODS production
-        infrastructure owned by an <<term actor>> in the
-        neighborhoods specified.  The <<term actor>>
+        This <term tactic> spends money to maintain the GOODS production
+        infrastructure owned by an <term actor> in the
+        neighborhoods specified.  The <term actor>
         may specify any amount of money as a cap on repair spending. The total
         cost of repairs is computed and then compared to the cap.  If the cost
         is less than the cap, the maximum amount of repair that could take
@@ -1458,7 +1458,7 @@ object tactic_maintain {
         Goods production plants produce goods depending on their level of
         repair (or disrepair).  If an actor does not spend money to maintain
         a certain level of repair it will degrade the
-        production capacity of his <<term plant>>s and thus negatively impact
+        production capacity of his <term plant>s and thus negatively impact
         the economic model potentially leading to shortages of
         goods and higher unemployment.
 
@@ -1484,7 +1484,7 @@ object tactic_maintain {
 
     attribute nlist "Nbhoods"  {
         The IDs of one or more neighborhoods, or
-        a <<cref /gofer/nbhoods>> value.
+        a <cref /gofer/nbhoods> value.
     } -tags {update}
 
     attribute fmode "Funding Mode" {
@@ -1546,13 +1546,13 @@ object tactic_maintain {
 }
 
 page /object/tactic maintain "MAINTAIN tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_maintain overview>><p>
+    <tactic_maintain overview><p>
 
     Maintain tactics have the following attributes:<p>
 
-    <<tactic_maintain parmlist>>
+    <tactic_maintain parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1564,8 +1564,8 @@ object tactic_mobilize {
         <b>Ignored on lock.</b><p>
 
         This tactic mobilizes 
-        <<term frcgroup>> or 
-        <<term orggroup>> personnel,
+        <term frcgroup> or 
+        <term orggroup> personnel,
         i.e., it brings new personnel into the playbox.  There is no
         direct cost to mobilization; however, a maintenance cost will be
         paid when the troops are deployed (and if they are not
@@ -1588,8 +1588,8 @@ object tactic_mobilize {
     include tactic_ -attrs state
 
     attribute g "Group" {
-        The ID of a <<term frcgroup>> or 
-        <<term orggroup>> belonging to the tactic's owning <i>agent</i>.
+        The ID of a <term frcgroup> or 
+        <term orggroup> belonging to the tactic's owning <i>agent</i>.
     } -tags {update}
 
     attribute mode "Mode" {
@@ -1636,13 +1636,13 @@ object tactic_mobilize {
 }
 
 page /object/tactic mobilize "MOBILIZE tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_mobilize overview>><p>
+    <tactic_mobilize overview><p>
 
     Mobilize tactics have the following attributes:<p>
 
-    <<tactic_mobilize parmlist>>
+    <tactic_mobilize parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1651,8 +1651,8 @@ page /object/tactic mobilize "MOBILIZE tactic" {
 object tactic_riot {
     noun "RIOT tactic"
     overview {
-        This <<term tactic>> creates an abstract event of type
-        "RIOT" in a <<term nbhood>>, specifying the neighborhood
+        This <term tactic> creates an abstract event of type
+        "RIOT" in a <term nbhood>, specifying the neighborhood
         coverage fraction.  The event will drive civilian attitudes
         in the neighborhood for each week that the tactic executes.<p>
 
@@ -1665,7 +1665,7 @@ object tactic_riot {
     include tactic_ -attrs state
 
     attribute n "Neighborhood" {
-        A <<term nbhood>> ID.  The event will occur in
+        A <term nbhood> ID.  The event will occur in
         this neighborhood.
     } -tags {update}
 
@@ -1679,13 +1679,13 @@ object tactic_riot {
 }
 
 page /object/tactic riot "RIOT tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_riot overview>><p>
+    <tactic_riot overview><p>
 
     RIOT tactics have the following attributes:<p>
 
-    <<tactic_riot parmlist>>
+    <tactic_riot parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1713,13 +1713,13 @@ object tactic_sigevent {
 }
 
 page /object/tactic sigevent "SIGEVENT tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_sigevent overview>><p>
+    <tactic_sigevent overview><p>
 
     SIGEVENT tactics have the following attributes:<p>
 
-    <<tactic_sigevent parmlist>>
+    <tactic_sigevent parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1731,7 +1731,7 @@ object tactic_spend {
     overview {
         <b>Can execute on lock.</b><p>
 
-        This <<term tactic>> allows the <<term actor>> to spend
+        This <term tactic> allows the <term actor> to spend
         a sum of money from his cash-on-hand to the various 
         sectors in the economy according to some amount of shares
         per sector.
@@ -1821,13 +1821,13 @@ object tactic_spend {
 }
 
 page /object/tactic spend "SPEND tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_spend overview>><p>
+    <tactic_spend overview><p>
 
     Spend tactics have the following attributes:<p>
 
-    <<tactic_spend parmlist>>
+    <tactic_spend parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1838,9 +1838,9 @@ object tactic_stance {
     overview {
         <b>Can execute on lock.</b><p>
 
-        This <<term tactic>> allows an <<term actor>> to 
+        This <term tactic> allows an <term actor> to 
         tell his force groups to adopt a particular 
-        <<term stance>> towards other groups.  This stance is a 
+        <term stance> towards other groups.  This stance is a 
         relationship value that indicates how the force group is expected 
         to behave toward the designated groups.  How well the force group
         succeeds in this depends on the force group's training level,
@@ -1866,13 +1866,13 @@ object tactic_stance {
     }  -tags {update}
 
     attribute glist "Groups" {
-        When the mode is <b>BY_GROUP</b>, a <<cref /gofer/groups>> value
+        When the mode is <b>BY_GROUP</b>, a <cref /gofer/groups> value
         specifying a list of one or more groups for which force group 
         <i>f</i>'s relationship is being designated.
     } -tags {update}
 
     attribute nlist "Neighborhoods" {
-        When the mode is <b>BY_NBHOOD</b>, a <<cref /gofer/nbhoods>> 
+        When the mode is <b>BY_NBHOOD</b>, a <cref /gofer/nbhoods> 
         value specifying a list of one or more  neighborhoods for which 
         force group <i>f</i>'s relationship is being designated.
     } -tags {update}
@@ -1882,18 +1882,18 @@ object tactic_stance {
         toward the designated groups, expressed as a value from the following
         scaled:<p>
 
-        <<::simlib::qaffinity html>>
+        <super ::simlib::qaffinity html>
     } -tags {update}
 }
 
 page /object/tactic stance "STANCE tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_stance overview>><p>
+    <tactic_stance overview><p>
 
     STANCE tactics have the following attributes:<p>
 
-    <<tactic_stance parmlist>>
+    <tactic_stance parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1904,9 +1904,9 @@ object tactic_support {
     overview {
         <b>Can execute on lock.</b><p>
 
-        This <<term tactic>> allows an <<term actor>> to determine who
+        This <term tactic> allows an <term actor> to determine who
         will receive his political support in one or more
-        <<term nbhood>>s.  Each actor has an actor he usually
+        <term nbhood>s.  Each actor has an actor he usually
         supports, as given in his actor definition; using this tactic,
         he can support other actors (or no one at all) in any given
         neighborhood.<p>
@@ -1930,26 +1930,26 @@ object tactic_support {
     include tactic_ -attrs state
 
     attribute a "Supported Actor" {
-        The ID of the <<term actor>> who will receive the
+        The ID of the <term actor> who will receive the
         owning actor's political support.
     } -tags {update}
 
     attribute nlist "In Neighborhoods" {
-        A <<cref /gofer/nbhoods>> value specifying a list of one or 
-        more <<term nbhood>>s.  Actor <i>a</i> will receive the
+        A <cref /gofer/nbhoods> value specifying a list of one or 
+        more <term nbhood>s.  Actor <i>a</i> will receive the
         owner's political support in these neighborhoods.
     } -tags {update}
 
 }
 
 page /object/tactic support "SUPPORT tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_support overview>><p>
+    <tactic_support overview><p>
 
     Support Actor tactics have the following attributes:<p>
 
-    <<tactic_support parmlist>>
+    <tactic_support parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -1958,8 +1958,8 @@ page /object/tactic support "SUPPORT tactic" {
 object tactic_violence {
     noun "VIOLENCE tactic"
     overview {
-        This <<term tactic>> creates an abstract event of type
-        "VIOLENCE" in a <<term nbhood>>, specifying the neighborhood
+        This <term tactic> creates an abstract event of type
+        "VIOLENCE" in a <term nbhood>, specifying the neighborhood
         coverage fraction.  The event will drive civilian attitudes
         in the neighborhood for each week that the tactic executes.<p>
 
@@ -1972,7 +1972,7 @@ object tactic_violence {
     include tactic_ -attrs state
 
     attribute n "Neighborhood" {
-        A <<term nbhood>> ID.  The event will occur in
+        A <term nbhood> ID.  The event will occur in
         this neighborhood.
     } -tags {update}
 
@@ -1986,13 +1986,13 @@ object tactic_violence {
 }
 
 page /object/tactic violence "VIOLENCE tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_violence overview>><p>
+    <tactic_violence overview><p>
 
     VIOLENCE tactics have the following attributes:<p>
 
-    <<tactic_violence parmlist>>
+    <tactic_violence parmlist>
 }
 
 
@@ -2005,10 +2005,10 @@ object tactic_withdraw {
     overview {
         <b>Ignored on lock.</b><p>
 
-        This <<term tactic>> allows the <<term actor>> to withdraw
+        This <term tactic> allows the <term actor> to withdraw
         a sum of money from his cash reserve into his cash-on-hand
         so that it can be spent on other tactics.  Funds are deposited
-        into the cash reserve using the <<cref /object/tactic/deposit>>.<p>
+        into the cash reserve using the <cref /object/tactic/deposit>.<p>
         
         Actors are frequently in the position of borrowing money.  Athena
         does not explicitly model any kind of banking system; as a work
@@ -2072,12 +2072,12 @@ object tactic_withdraw {
 }
 
 page /object/tactic withdraw "WITHDRAW tactic" {
-    <<sotitle>>
+    <sotitle>
 
-    <<tactic_withdraw overview>><p>
+    <tactic_withdraw overview><p>
 
     Withdraw tactics have the following attributes:<p>
 
-    <<tactic_withdraw parmlist>>
+    <tactic_withdraw parmlist>
 }
 

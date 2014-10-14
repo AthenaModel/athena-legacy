@@ -21,10 +21,9 @@ TOP_DIR = ../..
 
 # Standard definitions are found in the following file.
 
-include $(TOP_DIR)/MakeDefs
-
 HELP_FILES   = $(wildcard *.help)
 HELPDB_FILES = $(wildcard *.helpdb)
+HELP_TOOL    = $(TOP_DIR)/bin/helptool.tcl
 
 #---------------------------------------------------------------------
 # Target: all
@@ -50,10 +49,4 @@ clean:
 show: clean all
 	$(HELP_BROWSER) athena.helpdb
 
-#---------------------------------------------------------------------
-# Standard Rules
-#
-# Standard rules and settings are defined in the following rules file.
-
-include $(TOP_DIR)/MakeRules
 

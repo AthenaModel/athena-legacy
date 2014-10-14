@@ -14,14 +14,14 @@
 #-----------------------------------------------------------------------
 
 page /order parm "Model Parameter Orders" {
-    <<title>>
+    <title>
 
     These orders are used to set the values of the 
-    Athena <<cref /parmdb>>.<p>
+    Athena <cref /parmdb>.<p>
 
     The user will usually use these orders indirectly, via the
-    <<command parm>> <<cref /command "executive command">> and its
-    subcommands; Athena <<version>> provides no other way for the user
+    <command parm> <cref /command "executive command"> and its
+    subcommands; Athena <version> provides no other way for the user
     to access them.  They are documented here for completeness'
     sake.<p>
 
@@ -31,49 +31,49 @@ page /order parm "Model Parameter Orders" {
 
     The orders are as follows:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 #-------------------------------------------------------------------
 
 order PARM:IMPORT "Import Parameter File" {
-    <<parmlist>>
+    <parmlist>
 
-    <<parm filename "Parameter File">> 
+    <parm filename "Parameter File"> 
     <b>Required.</b>  Name of a parmdb(5) parameter file.
-    <</parm>>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 
-    This order imports <<cref /parmdb "model parameter">> settings from
-    a disk file.  See <<command parm import>> for details.
+    This order imports <cref /parmdb "model parameter"> settings from
+    a disk file.  See <command parm import> for details.
 }
 
 
 #-------------------------------------------------------------------
 
 order PARM:RESET "Reset Parameters to Defaults" {
-    This order resets all <<cref /parmdb "model parameters">> to
-    their default values.  See <<command parm reset>> for details.
+    This order resets all <cref /parmdb "model parameters"> to
+    their default values.  See <command parm reset> for details.
 }
 
 #-------------------------------------------------------------------
 
 order PARM:SET "Set Parameter Value" {
-    <<parmlist>>
+    <parmlist>
 
-    <<parm parm "Parameter">> 
+    <parm parm "Parameter"> 
     <b>Required.</b>  Name of a parmdb(5) parameter.
-    <</parm>>
+    </parm>
 
-    <<parm value "Value">> 
+    <parm value "Value"> 
     <b>Required.</b>  New parameter value.
-    <</parm>>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 
     This order sets the value of the named parameter.  See 
-    <<command parm set>> for details. 
+    <command parm set> for details. 
 }
 
 

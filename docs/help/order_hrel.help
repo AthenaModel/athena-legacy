@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------
 
 page /order hrel "Horizontal Relationship Orders" {
-    <<title>>
+    <title>
 
     Groups can be friends, enemies, or neutrals, as determined by
     their <i>horizontal relationship</i>, a number between -1.0 and 1.0.<p>
@@ -25,51 +25,51 @@ page /order hrel "Horizontal Relationship Orders" {
     manually by the user using these orders.  Once the scenario is
     locked, relationships can vary dynamically.<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 #-----------------------------------------------------------------------
 
 order HREL:OVERRIDE "Override Baseline Horizontal Relationship" {
-    <<parmlist>>
-    <<parm id "Groups">>
+    <parmlist>
+    <parm id "Groups">
     <b>Required.</b>  A group relationship ID, specified as a 
     list {<i>f g</i>} where <i>f</i> and <i>g</i> are two groups.  The
     associated relationship is <i>f</i>'s relationship with <i>g</i>.
     Note that a group's relationship with itself is always 1.0 and
     cannot be overridden.
-    <</parm>>
+    </parm>
 
-    <<parm base "Baseline">>
+    <parm base "Baseline">
     <b>Optional.</b>  The new baseline relationship between the two groups,
     a decimal number between -1.0 and 1.0.
-    <</parm>>
+    </parm>
 
-    <<parm hist_flag "Start Mode">>
+    <parm hist_flag "Start Mode">
     <b>Optional.</b> The start mode indicates whether the scenario is a new
     scenario, or if it
     was created to reflect an existing time-advanced scenario via the
-    <<cref /order/sim/rebase>> order.  The value is either 0 ("New Scenario") or
+    <cref /order/sim/rebase> order.  The value is either 0 ("New Scenario") or
     1 ("From Previous Scenario").  If 1, the specified <i>current</i> value
     will be used.<p>
-    <</parm>>
+    </parm>
 
-    <<parm current "Current">>
+    <parm current "Current">
     <b>Optional.</b> If the start mode is 1 ("From Previous Scenario") then 
     this is the initial
     current relationship on scenario lock.  Usually it will be set
-    by <<cref /order/sim/rebase>> rather than by the user.<p>
+    by <cref /order/sim/rebase> rather than by the user.<p>
 
     This setting determines the "current" relationship during the
     first part of locking the scenario, when it can affect the value of
     security and other models as part of bootstrapping the simulation.  It
-    is set by <<cref /order/sim/rebase>> to increase the fidelity of a
+    is set by <cref /order/sim/rebase> to increase the fidelity of a
     rebased scenario on-lock; there is little reason to set it manually.
-    <</parm>>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 
-    <b><<term prep>> Only.</b>  This order overrides the
+    <b><term prep> Only.</b>  This order overrides the
     affinity-based initial baseline relationship between the two
     groups with one of the user's choosing.
 }
@@ -77,16 +77,16 @@ order HREL:OVERRIDE "Override Baseline Horizontal Relationship" {
 #-----------------------------------------------------------------------
 
 order HREL:RESTORE "Restore Baseline Horizontal Relationship" {
-    <<parmlist>>
-    <<parm id "Groups">>
+    <parmlist>
+    <parm id "Groups">
     <b>Required.</b>  A group relationship ID, specified as a 
     list {<i>f g</i>} where <i>f</i> and <i>g</i> are two groups.  The
     associated relationship is <i>f</i>'s relationship with <i>g</i>.
-    <</parm>>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 
-    <b><<term prep>> Only.</b>  This order restores the affinity-based
+    <b><term prep> Only.</b>  This order restores the affinity-based
     initial baseline relationship between the two groups, 
     deleting any manual override.
 }
@@ -94,45 +94,45 @@ order HREL:RESTORE "Restore Baseline Horizontal Relationship" {
 #-----------------------------------------------------------------------
 
 order HREL:OVERRIDE+MULTI "Override Multiple Baseline Horizontal Relationships" {
-    <<parmlist>>
-    <<parm ids "IDs">>
-    <b>Required.</b>  <<parm.ids relationship>><p>
+    <parmlist>
+    <parm ids "IDs">
+    <b>Required.</b>  <parm.ids relationship><p>
 
     Programmatically, each ID is a list {<i>f g</i>} where
     <i>f</i> and <i>g</i> are defined as for the 
-    <<cref /order/hrel/override>> order.
-    <</parm>>
+    <cref /order/hrel/override> order.
+    </parm>
 
-    <<parm base "Baseline">>
+    <parm base "Baseline">
     <b>Optional.</b>  The baseline relationship between two groups,
     a decimal number between -1.0 and 1.0.
-    <</parm>>
+    </parm>
 
-    <<parm hist_flag "Start Mode">>
+    <parm hist_flag "Start Mode">
     <b>Optional.</b> The start mode indicates whether the scenario is a new
     scenario, or if it
     was created to reflect an existing time-advanced scenario via the
-    <<cref /order/sim/rebase>> order.  The value is either 0 ("New Scenario") or
+    <cref /order/sim/rebase> order.  The value is either 0 ("New Scenario") or
     1 ("From Previous Scenario").  If 1, the specified <i>current</i> value
     will be used.<p>
-    <</parm>>
+    </parm>
 
-    <<parm current "Current">>
+    <parm current "Current">
     <b>Optional.</b> If the start mode is 1 ("From Previous Scenario") then 
     this is the initial
     current relationship on scenario lock.  Usually it will be set
-    by <<cref /order/sim/rebase>> rather than by the user.<p>
+    by <cref /order/sim/rebase> rather than by the user.<p>
 
     This setting determines the "current" relationship during the
     first part of locking the scenario, when it can affect the value of
     security and other models as part of bootstrapping the simulation.  It
-    is set by <<cref /order/sim/rebase>> to increase the fidelity of a
+    is set by <cref /order/sim/rebase> to increase the fidelity of a
     rebased scenario on-lock; there is little reason to set it manually.
-    <</parm>>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 
-    <b><<term prep>> Only.</b>  This order overrides two or more
+    <b><term prep> Only.</b>  This order overrides two or more
     affinity-based initial baseline horizontal relationships, 
     as selected in the GUI, with values of the user's choosing.
 }

@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------
 
 page /order absit "Abstract Situation Orders" {
-    <<title>>
+    <title>
 
     Athena models a variety of on-going conditions within
     neighborhoods; these are collectively referred to as
@@ -28,7 +28,7 @@ page /order absit "Abstract Situation Orders" {
 
     The full set of orders is as follows:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 macro ABSIT.initial {} {
@@ -86,54 +86,54 @@ macro ABSIT.rduration {} {
 
 order ABSIT:CREATE "Create Abstract Situation" {
     This order creates a new abstract situation.  Note that the
-    <<cref /order/absit/update>> order can be used to
+    <cref /order/absit/update> order can be used to
     edit any of these values so long as the situation has not yet
     become active, i.e., up until the next time advance.<p>
 
-    This order can be <<cref /command/send sent>> by the
-    <<cref /object/tactic/executive>>.<p>
+    This order can be <cref /command/send sent> by the
+    <cref /object/tactic/executive>.<p>
 
-    <<parmlist>>
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<ABSIT.n>>
-    <</parm>>
+    <parmlist>
+    <parm n "Neighborhood">
+    <b>Required.</b>  <ABSIT.n>
+    </parm>
 
-    <<parm stype "Type">>
-    <b>Required.</b> <<ABSIT.stype>>
-    <</parm>>
+    <parm stype "Type">
+    <b>Required.</b> <ABSIT.stype>
+    </parm>
 
-    <<parm coverage "Coverage">>
-    <b>Required.</b> <<ABSIT.coverage>>
-    <</parm>>
+    <parm coverage "Coverage">
+    <b>Required.</b> <ABSIT.coverage>
+    </parm>
 
-    <<parm inception "Inception?">>
-    <b>Required.</b> <<ABSIT.inception>>
-    <</parm>>
+    <parm inception "Inception?">
+    <b>Required.</b> <ABSIT.inception>
+    </parm>
 
-    <<parm resolver "Resolver">>
+    <parm resolver "Resolver">
     <b>Required.</b>  The name of the group that the neighborhood
     population will consider responsible for resolving this situation,
     or <b>NONE</b> if none.  This entry is used when the situation
     resolves itself automatically; it can be overridden if the
     situation is resolved manually.
-    <</parm>>
+    </parm>
 
-    <<parm rduration "Duration">>
-    <b>Optional.</b>  <<ABSIT.rduration>>
-    <</parm>>
+    <parm rduration "Duration">
+    <b>Optional.</b>  <ABSIT.rduration>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 }
 
 #-----------------------------------------------------------------------
 
 order ABSIT:DELETE "Delete Abstract Situation" {
-    <<parmlist>>
+    <parmlist>
 
-    <<parm s "Situation">>
-    <b>Required.</b>  <<ABSIT.initial>>
-    <</parm>>
-    <</parmlist>>
+    <parm s "Situation">
+    <b>Required.</b>  <ABSIT.initial>
+    </parm>
+    </parmlist>
 
     Deletes an existing abstract situation.
 }
@@ -144,92 +144,92 @@ order ABSIT:UPDATE "Update Abstract Situation" {
     Updates an existing abstract situation that has not yet
     become active.<p>
 
-    <<parmlist>>
+    <parmlist>
 
-    <<parm s "Situation">>
-    <b>Required.</b>  <<ABSIT.initial>>
-    <</parm>>
+    <parm s "Situation">
+    <b>Required.</b>  <ABSIT.initial>
+    </parm>
 
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<ABSIT.n>>
-    <</parm>>
+    <parm n "Neighborhood">
+    <b>Required.</b>  <ABSIT.n>
+    </parm>
 
-    <<parm stype "Type">>
-    <b>Required.</b> <<ABSIT.stype>>
-    <</parm>>
+    <parm stype "Type">
+    <b>Required.</b> <ABSIT.stype>
+    </parm>
 
-    <<parm coverage "Coverage">>
-    <b>Required.</b> <<ABSIT.coverage>>
-    <</parm>>
+    <parm coverage "Coverage">
+    <b>Required.</b> <ABSIT.coverage>
+    </parm>
 
-    <<parm inception "Inception?">>
-    <b>Required.</b> <<ABSIT.inception>>
-    <</parm>>
+    <parm inception "Inception?">
+    <b>Required.</b> <ABSIT.inception>
+    </parm>
 
-    <<parm resolver "Resolver">>
+    <parm resolver "Resolver">
     <b>Required.</b>  The name of the group that the neighborhood
     population will consider responsible for resolving this situation,
     or <b>NONE</b> if none.  This entry is used when the situation
     resolves itself automatically; it can be overridden if the
     situation is resolved manually.
-    <</parm>>
+    </parm>
 
-    <<parm rduration "Duration">>
-    <b>Optional.</b>  <<ABSIT.rduration>>
-    <</parm>>
+    <parm rduration "Duration">
+    <b>Optional.</b>  <ABSIT.rduration>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 }
 
 
 #-----------------------------------------------------------------------
 
 order ABSIT:MOVE "Move Abstract Situation" {
-    <<parmlist>>
+    <parmlist>
 
-    <<parm s "Situation">>
+    <parm s "Situation">
     <b>Required.</b>  The numeric ID of any existing abstract
     situation.
-    <</parm>>
+    </parm>
 
-    <<parm location "Location">>
+    <parm location "Location">
     <b>Required.</b>  The location of the situation within its
     neighborhood.  <b>Note:</b> the absit's location within the
     neighborhood has no effect on model outputs.  The absit
     cannot be moved out of its neighborhood using this order.
-    <</parm>>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 
     Moves an existing abstract situation from one place to another.
 }
 
 
 order ABSIT:RESOLVE "Resolve Abstract Situation" {
-    <<parmlist>>
+    <parmlist>
 
-    <<parm s "Situation">>
+    <parm s "Situation">
     <b>Required.</b>  The numeric ID of any unresolved abstract
     situation.
-    <</parm>>
+    </parm>
 
-    <<parm resolver "Resolved By">>
+    <parm resolver "Resolved By">
     <b>Optional.</b> The name of the group that the neighborhood
     population will consider responsible for resolving this situation,
     or <b>NONE</b> if none.  If specified, overrides the group name
     given when the situation was 
-    <<cref /order/absit/create created>>.
-    <</parm>>
+    <cref /order/absit/create created>.
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 
     Resolves an unresolved abstract situation.  Any on-going
     effects will be terminated, and the neighborhood population will
     usually respond favorably.<p>
 
 
-    This order can be <<cref /command/send sent>> by the
-    <<cref /object/tactic/executive>>.
+    This order can be <cref /command/send sent> by the
+    <cref /object/tactic/executive>.
 }
 
 

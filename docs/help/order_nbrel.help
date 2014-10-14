@@ -14,10 +14,10 @@
 #-----------------------------------------------------------------------
 
 page /order nbrel "Neighborhood Relationship Orders" {
-    <<title>>
+    <title>
 
     The Athena playbox, or region of interest, is divided into 
-    <<cref /order/nbhood neighborhoods>>.  Neighborhoods are related
+    <cref /order/nbhood neighborhoods>.  Neighborhoods are related
     to each other in two ways: by proximity, and by the time it takes
     attitude effects to spread.  The neighborhood relationship orders
     are used to edit these relationships.<p>
@@ -26,26 +26,26 @@ page /order nbrel "Neighborhood Relationship Orders" {
     pair of neighborhoods, and are deleted as necessary when
     neighborhoods are deleted.<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 #-------------------------------------------------------------------
 
 order NBREL:UPDATE "Update Neighborhood Relationship" {
-    <<parmlist>>
-    <<parm id "Neighborhood">> 
+    <parmlist>
+    <parm id "Neighborhood"> 
     <b>Required.</b>  A neighborhood relationship ID, specified as
     a list {<i>m</i>, <i>n</i>} where <i>m</i> and <i>n</i> are
     neighborhoods and the data is <i>m</i>'s relationship with
     <i>n</i>.  Note that a neighborhood's relationship with itself
     is fixed, so <i>m</i> cannot equal <i>n</i>.
-    <</parm>>
+    </parm>
 
-    <<parm proximity "Proximity">>  
+    <parm proximity "Proximity">  
     <b>Optional.</b> The proximity between the two neighborhoods from
     <i>m</i>'s point of view:<p>
 
-    <<enumdoc ::simlib::eproximity>><p>
+    <enumdoc ::simlib::eproximity><p>
 
     Every neighborhood has a proximity of <b>HERE</b> with itself;
     this cannot be changed.  Two distinct neighborhoods can have a
@@ -54,31 +54,31 @@ order NBREL:UPDATE "Update Neighborhood Relationship" {
     The attitude effects of events and situations in neighborhood <i>n</i>
     diminish with distance, and vanish altogether in neighborhoods
     <i>m</i> that consider <i>n</i> to be <b>REMOTE</b>.
-    <</parm>>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 
-    <b><<term prep>> Only.</b>  This order modifies existing
+    <b><term prep> Only.</b>  This order modifies existing
     neighborhood relationships.<p>
 }
 
 #-------------------------------------------------------------------
 
 order NBREL:UPDATE+MULTI "Update Multiple Neighborhood Relationships" {
-    <<parmlist>>
-    <<parm ids "IDs">>
-    <b>Required.</b>  <<parm.ids "neighborhood relationship">><p>
+    <parmlist>
+    <parm ids "IDs">
+    <b>Required.</b>  <parm.ids "neighborhood relationship"><p>
 
      Programmatically, each ID is a list {<i>m n</i>} where <i>m</i>
     and <i>n</i> are defined as for the 
-    <<cref /order/nbrel/update>> order.
-    <</parm>>
+    <cref /order/nbrel/update> order.
+    </parm>
 
-    <<parm proximity "Proximity">>  
+    <parm proximity "Proximity">  
     <b>Optional.</b> The proximity between the two neighborhoods from
     <i>m</i>'s point of view:<p>
 
-    <<enumdoc ::simlib::eproximity>><p>
+    <enumdoc ::simlib::eproximity><p>
 
     Every neighborhood has a proximity of <b>HERE</b> with itself;
     this cannot be changed.  Two distinct neighborhoods can have a
@@ -87,11 +87,11 @@ order NBREL:UPDATE+MULTI "Update Multiple Neighborhood Relationships" {
     The attitude effects of events and situations in neighborhood <i>n</i>
     diminish with distance, and vanish altogether in neighborhoods
     <i>m</i> that consider <i>n</i> to be <b>REMOTE</b>.
-    <</parm>>
+    </parm>
 
-    <</parmlist>>
+    </parmlist>
 
-    <b><<term prep>> Only.</b>  This order modifies two or more
+    <b><term prep> Only.</b>  This order modifies two or more
     neighborhood relationships, as selected in the GUI.<p>
 }
 

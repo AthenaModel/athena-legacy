@@ -18,18 +18,18 @@
 #-----------------------------------------------------------------------
 
 page / var "Display Variables" {
-    <<title>>
+    <title>
     Athena provides the ability to plot or otherwise visualize a 
     wide variety of <i>display variables</i>.  There are two kinds:<p>
 
     <ul>
-    <li> <<cref /var/n>>
-    <li> <<cref /var/t>>
+    <li> <cref /var/n>
+    <li> <cref /var/t>
     </ul>
 
     Every display variable name consists of a variable type, possibly 
     followed by one or more index values.  For example, the
-    neighborhood variable <b>sat.SHIA.SFT</b> is the <<term satisfaction>> of 
+    neighborhood variable <b>sat.SHIA.SFT</b> is the <term satisfaction> of 
     of the SHIA group with respect to its SFT concern across
     neighborhoods.<p>
 
@@ -39,7 +39,7 @@ page / var "Display Variables" {
 
     <b>sat.<i>g.c</i></b><p>
 
-    is the <<term satisfaction>> of group <i>g</i> with concern <i>c</i> 
+    is the <term satisfaction> of group <i>g</i> with concern <i>c</i> 
     across
     neighborhoods.
 }
@@ -86,55 +86,55 @@ macro vartitle {args} {
 # Neighborhood Variables
 
 page /var n "Neighborhood Variables" {
-    <<title>>
+    <title>
     A <i>neighborhood variable</i> is a
-    <<cref /var "display variable">> whose value varies across
+    <cref /var "display variable"> whose value varies across
     neighborhoods. For example, the
-    neighborhood variable <b>sat.SHIA.SFT</b> is the <<term satisfaction>> of 
+    neighborhood variable <b>sat.SHIA.SFT</b> is the <term satisfaction> of 
     of the SHIA group with respect to its SFT concern across
     neighborhoods.<p>
 
     The available variable types are as follows:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 var n cap {
-    <<vartitle>>
+    <vartitle>
     The production capacity for goods of each neighborhood, in
     goodsBKT/year.
 }
 
 var n cov {
-    <<vartitle g a>>
-    The <<term coverage>> fraction for <<term activity>> <i>a</i> by 
+    <vartitle g a>
+    The <term coverage> fraction for <term activity> <i>a</i> by 
     group <i>g</i>.
 }
 
 var n nbcoop {
-    <<vartitle g>>
-    The overall <<term cooperation>> of each neighborhood with group <i>g</i>.
+    <vartitle g>
+    The overall <term cooperation> of each neighborhood with group <i>g</i>.
 }
 
 var n nbmood {
-    <<vartitle>>
-    The overall <<term mood>> (composite <<term satisfaction>>) across
+    <vartitle>
+    The overall <term mood> (composite <term satisfaction>) across
     neighborhoods.
 }
 
 var n nbmood0 {
-    <<vartitle>>
-    The overall <<term mood>> (composite <<term satisfaction>>) across
+    <vartitle>
+    The overall <term mood> (composite <term satisfaction>) across
     neighborhoods at time 0.
 }
 
 var n none {
-    <<vartitle>>
+    <vartitle>
     A null variable, 0 for all neighborhoods.
 }
 
 var n pcf {
-    <<vartitle>>
+    <vartitle>
     The production capacity factor for goods across neighborhoods.
     A number less than 1.0 indicates that production
     capacity has been destroyed or disabled; a number greater than
@@ -142,8 +142,8 @@ var n pcf {
 }
 
 var n sec {
-    <<vartitle g>>
-    The <<term security>> of group <i>g</i> across neighborhoods.
+    <vartitle g>
+    The <term security> of group <i>g</i> across neighborhoods.
 }
 
 
@@ -151,171 +151,171 @@ var n sec {
 # Time Series Variables
 
 page /var t "Time Series Variables" {
-    <<title>>
+    <title>
     A <i>time series variable</i> is a
-    <<cref /var "display variable">> whose value varies with time.
+    <cref /var "display variable"> whose value varies with time.
     For example, the
-    time series variable <b>sat.N1.SHIA.SFT</b> is the <<term satisfaction>>
+    time series variable <b>sat.N1.SHIA.SFT</b> is the <term satisfaction>
     of the SHIA group in neighborhood N1 with respect to its SFT
     concern over time.<p>
 
     The available variable types are as follows:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 var t consumers {
-    <<vartitle>>
+    <vartitle>
     The number of non-subsistence consumers in the economy over time, 
     measured at each update of the economic model.
 }
 
 var t coop {
-    <<vartitle f g>>
-    The actual <<term cooperation>> of civilian group <i>f</i> with force
+    <vartitle f g>
+    The actual <term cooperation> of civilian group <i>f</i> with force
     group <i>g</i> over time.
 }
 
 var t basecoop {
-    <<vartitle f g>>
-    The baseline <<term cooperation>> of civilian group <i>f</i> with force
+    <vartitle f g>
+    The baseline <term cooperation> of civilian group <i>f</i> with force
     group <i>g</i> over time.
 }
 
 var t natcoop {
-    <<vartitle f g>>
-    The natural <<term cooperation>> of civilian group <i>f</i> with force
+    <vartitle f g>
+    The natural <term cooperation> of civilian group <i>f</i> with force
     group <i>g</i> over time.
 }
 
 var t cpi {
-    <<vartitle>>
+    <vartitle>
     The Consumer Price Index (CPI) of the economy, measured 
     at each update of the economic model.
 }
 
 var t dgdp {
-    <<vartitle>>
+    <vartitle>
     The Deflated Gross Domestic Product (DGDP) of the economy, 
     measured at each update of the economic model.
 }
 
 var t hrel {
-    <<vartitle f g>>
-    The actual <<term hrel>> of group <i>f</i> with 
+    <vartitle f g>
+    The actual <term hrel> of group <i>f</i> with 
     group <i>g</i> over time.
 }
 
 var t basehrel {
-    <<vartitle f g>>
-    The baseline <<term hrel>> of group <i>f</i> with 
+    <vartitle f g>
+    The baseline <term hrel> of group <i>f</i> with 
     group <i>g</i> over time.
 }
 
 var t nathrel {
-    <<vartitle f g>>
-    The natural <<term hrel>> of group <i>f</i> with 
+    <vartitle f g>
+    The natural <term hrel> of group <i>f</i> with 
     group <i>g</i> over time.
 }
 
 var t labor {
-    <<vartitle>>
+    <vartitle>
     The number of non-subsistence workers in the economy, measured 
     at each update of the economic model.
 }
 
 var t lsf {
-    <<vartitle>>
+    <vartitle>
     The Labor Security Factor (LSF) of the economy, measured 
     at each update of the economic model.
 }
 
 var t mood {
-    <<vartitle g>>
-    The <<term mood>> of group <i>g</i> over time.
+    <vartitle g>
+    The <term mood> of group <i>g</i> over time.
 }
 
 var t nbcoop {
-    <<vartitle n g>>
-    The <<term cooperation>> of the civilians in neighborhood <i>n</i>
+    <vartitle n g>
+    The <term cooperation> of the civilians in neighborhood <i>n</i>
     with force group <i>g</i> over time.
 }
 
 var t nbmood {
-    <<vartitle n>>
-    The <<term mood>> of the civilians in neighborhood <i>n</i> 
+    <vartitle n>
+    The <term mood> of the civilians in neighborhood <i>n</i> 
     over time.
 }
 
 var t price {
-    <<vartitle i>>
-    The price of one unit of <<term sector>> <i>i</i>,
+    <vartitle i>
+    The price of one unit of <term sector> <i>i</i>,
     measured at each update of the economic model.
 }
 
 var t qd {
-    <<vartitle i j>>
-    The quantity/year of <<term sector>> <i>i</i>'s units purchased by
+    <vartitle i j>
+    The quantity/year of <term sector> <i>i</i>'s units purchased by
     sector <i>j</i>, measured at each update of the economic model.
 }
 
 var t qs {
-    <<vartitle i>>
-    The quantity/year produced by <<term sector>> <i>i</i> in <i>i</i>'s units,
+    <vartitle i>
+    The quantity/year produced by <term sector> <i>i</i> in <i>i</i>'s units,
     measured at each update of the economic model.
 }
 
 var t rev {
-    <<vartitle i>>
-    The revenue in $/year received by <<term sector>> <i>i</i>,
+    <vartitle i>
+    The revenue in $/year received by <term sector> <i>i</i>,
     measured at each update of the economic model.
 }
 
 var t sat {
-    <<vartitle g c>>
-    The actual <<term satisfaction>> of group <i>g</i> with respect to
-    <<term concern>> <i>c</i> over time.
+    <vartitle g c>
+    The actual <term satisfaction> of group <i>g</i> with respect to
+    <term concern> <i>c</i> over time.
 }
 
 var t basesat {
-    <<vartitle g c>>
-    The baseline <<term satisfaction>> of group <i>g</i> with respect to
-    <<term concern>> <i>c</i> over time.
+    <vartitle g c>
+    The baseline <term satisfaction> of group <i>g</i> with respect to
+    <term concern> <i>c</i> over time.
 }
 
 var t natsat {
-    <<vartitle g c>>
-    The natural <<term satisfaction>> of group <i>g</i> with respect to
-    <<term concern>> <i>c</i> over time.
+    <vartitle g c>
+    The natural <term satisfaction> of group <i>g</i> with respect to
+    <term concern> <i>c</i> over time.
 }
 
 var t ur {
-    <<vartitle>>
+    <vartitle>
     The unemployment rate as a percentage of the labor force,
     measured at each update of the economic model.
 }
 
 var t vrel {
-    <<vartitle g a>>
-    The actual <<term vrel>> of group <i>g</i> with 
+    <vartitle g a>
+    The actual <term vrel> of group <i>g</i> with 
     actor <i>a</i> over time.
 }
 
 var t basevrel {
-    <<vartitle g a>>
-    The baseline <<term vrel>> of group <i>g</i> with 
+    <vartitle g a>
+    The baseline <term vrel> of group <i>g</i> with 
     actor <i>a</i> over time.
 }
 
 var t natvrel {
-    <<vartitle g a>>
-    The natural <<term vrel>> of group <i>g</i> with 
+    <vartitle g a>
+    The natural <term vrel> of group <i>g</i> with 
     actor <i>a</i> over time.
 }
 
 var t x {
-    <<vartitle i j>>
-    The payment in $/year from <<term sector>> <i>j</i> to
+    <vartitle i j>
+    The payment in $/year from <term sector> <i>j</i> to
     sector <i>i</i>, measured at each update of the economic model.
 }
 

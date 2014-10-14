@@ -39,22 +39,22 @@ object plant_ {
         any consumers (ie. consist only of subsisters).<p>
 
         Shares of GOODS Production Plants are defined and edited on the 
-        <<cref /tab/infrastructure/goods_plants>>.<p>
+        <cref /tab/infrastructure/goods_plants>.<p>
 
         Unless an actor is automatically maintaining his infrastructure, money
-        must be spent during <<term strategy>> execution to maintain it by
-        way of the MAINTAIN <<term tactic>>.  Infrastructure that is not
+        must be spent during <term strategy> execution to maintain it by
+        way of the MAINTAIN <term tactic>.  Infrastructure that is not
         maintained will fall into disrepair and produce less and less goods
         until it stops production completely.<p>
 
         Actors can also build new infrastructure by way of the BUILD 
-        <<term tactic>>.  This new infrastructure will also need to be
+        <term tactic>.  This new infrastructure will also need to be
         maintained after it is completed, unless the actor who built it
         is automatically maintaining it.<p>
 
         GOODS Production Plants cannot exist in non-local neighborhoods.
         Thus, attempting to BUILD, MAINTAIN or DAMAGE them as part of an
-        actor's <<term strategy>> in non-local neighborhoods is not allowed.<p>
+        actor's <term strategy> in non-local neighborhoods is not allowed.<p>
     }
 
 
@@ -86,13 +86,13 @@ object plant_ {
 }
 
 page /object plant "GOODS Production Plants" {
-    <<sotitle>>
+    <sotitle>
 
-    <<plant_ overview>><p>
+    <plant_ overview><p>
 
     Define GOODS production plant shares with these attributes:<p>
 
-    <<plant_ parmlist>>
+    <plant_ parmlist>
 }
 
 

@@ -42,9 +42,9 @@ object cap_ {
         (though not useful) for group penetration to be positive for
         groups outside of the CAP's coverage area.  Such "orphan"
         groups are highlighted on the 
-        <<cref /tab/infrastructure/caps/group>>.<p>
+        <cref /tab/infrastructure/caps/group>.<p>
         
-        CAPs are edited on the <<cref /tab/infrastructure/caps>>.<p>
+        CAPs are edited on the <cref /tab/infrastructure/caps>.<p>
     }
 
     attribute k "CAP" {
@@ -63,7 +63,7 @@ object cap_ {
 
     attribute a "Owning Actor" {
         The CAP's owning actor.  This parameter may remain unset during
-        <<term prep>>, but must be specified before time can be
+        <term prep>, but must be specified before time can be
         advanced.
     } -tags {create update browser multi}
 
@@ -83,7 +83,7 @@ object cap_ {
         specified when the CAP is created; by default, the CAP has
         1.0 neighborhood coverage in these neighborhoods.  Neighborhood
         coverage can also be edited subsequently using 
-        <<cref /order/cap/nbcov/set>>.
+        <cref /order/cap/nbcov/set>.
     } -tags {create optcreate}
 
     attribute glist "Civ. Groups" {
@@ -91,19 +91,19 @@ object cap_ {
         list is specified when the CAP is created; by default, the
         CAP has 1.0 penetration of these groups.  Group penetration can
         also be edited subsequently using
-        <<cref /order/cap/pen/set>>. 
+        <cref /order/cap/pen/set>. 
     } -tags {create optcreate}
 
 }
 
 page /object cap "CAP" {
-    <<sotitle>>
+    <sotitle>
 
-    <<cap_ overview>><p>
+    <cap_ overview><p>
 
     CAPs have the following attributes:<p>
 
-    <<cap_ parmlist>>
+    <cap_ parmlist>
 }
 
 

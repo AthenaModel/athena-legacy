@@ -12,6 +12,7 @@
 #    (Macros are for use in page bodies; procs for use in creating
 #    pages, and in macros.)
 #
+# TODO: These should probably be supplied by helptool, and documented.
 #
 #-----------------------------------------------------------------------
 
@@ -78,7 +79,7 @@ proc name2pathlinks {root sep name} {
 
     foreach htok [lrange $hTokens 0 end-1] ptok [lrange $pTokens 0 end-1] {
         append path "/$ptok"
-        append nameWithLinks "<a href=\"$path\">$htok</a>$sep"
+        append nameWithLinks "<link \"$path\" $htok>$sep"
     }
 
     append nameWithLinks [lindex $hTokens end]

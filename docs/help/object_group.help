@@ -55,18 +55,18 @@ object group_ {
         The demeanor of the group, i.e., its propensity for
         violence. The possible values are as follows:<p>
 
-        <<enumdoc ::projectlib::edemeanor>>
+        <enumdoc ::projectlib::edemeanor>
     } -tags {create update}
 }
 
 page /object group "Group" {
-    <<sotitle>>
+    <sotitle>
 
-    <<group_ overview>><p>
+    <group_ overview><p>
 
     There are three kinds of group in Athena:<p>
 
-    <<childlinks>>
+    <childlinks>
 }
 
 #-----------------------------------------------------------------------
@@ -76,17 +76,17 @@ object group_civ {
     noun "civilian group"
 
     overview {
-        A <i>civilian <<term group>></i> is an identifiable collection of
+        A <i>civilian <term group></i> is an identifiable collection of
         civilians who live in the playbox and share similar beliefs.
         Each civilian group resides in a single
-        <<term nbhood>>.
+        <term nbhood>.
     }
 
     include group_ -attrs g        -tags create
     include group_ -attrs longname -tags {create update browser}
 
     attribute n "Neighborhood" {
-        The ID of an existing <<term nbhood>>, the group's
+        The ID of an existing <term nbhood>, the group's
         neighborhood of residence.
     } -tags {create update browser}
 
@@ -94,7 +94,7 @@ object group_civ {
         The group's belief system, a collection of positions on
         topics of interest in the region that determines how
         other groups perceive this group.  Belief systems are 
-        created and edited on the <<tab "Social/Beliefs">>.
+        created and edited on the <tab "Social/Beliefs">.
     } -tags {create update browser}
 
     include group_ -attrs {color demeanor} \
@@ -136,7 +136,7 @@ object group_civ {
     attribute hist_flag "Start Mode" {
         The start mode indicates whether the group data is for a new
         scenario, or if it was created to reflect an existing
-        time-advanced scenario via the <<cref /order/sim/rebase>> order.  
+        time-advanced scenario via the <cref /order/sim/rebase> order.  
         The value is either 0 ("New Scenario") or 1 ("From Previous 
         Scenario").  If 1, the specified <i>upc</i> value
         will be used.<p>
@@ -148,20 +148,20 @@ object group_civ {
         at the start of scenario lock.  This value affects the computation of
         security during scenario lock, and is then overridden by the output
         of the Economics and Demographics model.  It is set by 
-        <<cref /order/sim/rebase>> to increase the fidelity of a
+        <cref /order/sim/rebase> to increase the fidelity of a
         rebased scenario on-lock; there is little reason to set it manually.
     } -tags {create update browser}
 
 }
 
 page /object/group civ "Civilian Group" {
-    <<sotitle>>
+    <sotitle>
 
-    <<group_civ overview>><p>
+    <group_civ overview><p>
 
     Civilian groups have the following attributes:<p>
 
-    <<group_civ parmlist>>
+    <group_civ parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -171,18 +171,18 @@ object group_frc {
     noun "force group"
 
     overview {
-        A <i>force <<term group>></i> is a group or organization that
+        A <i>force <term group></i> is a group or organization that
         exists to implement policy through the application of force.
         Examples include the regular army, the local police, and
         organized crime.  Force groups are owned by
-        <<term actor>>s, who may use them to achieve their
+        <term actor>s, who may use them to achieve their
         goals.<p>
 
         Force groups are created on the
-        <<tab Military/Force Groups>> using the <<cref /order/frcgroup>>.
+        <tab Military/Force Groups> using the <cref /order/frcgroup>.
         In order to apply force, force group
         personnel must be deployed to neighborhoods and assigned
-        duties using <<term tactic>>s.<p>
+        duties using <term tactic>s.<p>
     }
 
     include group_ -attrs g        -tags create
@@ -190,7 +190,7 @@ object group_frc {
 
     attribute a "Owning Actor" {
         The group's owning actor.  This parameter may remain unset during
-        <<term prep>>, but must be specified before time can be
+        <term prep>, but must be specified before time can be
         advanced.
     } -tags {create update multi}
 
@@ -202,14 +202,14 @@ object group_frc {
         police), police, irregular military (e.g., militias), or
         organized crime:<p>
 
-        <<enumdoc ::projectlib::eforcetype>>
+        <enumdoc ::projectlib::eforcetype>
     } -tags {create update multi}
 
     attribute training "Training Level" {
         The group's training level, which effects discipline, skill, and so
         forth.  The possible training levels are as follows:<p>
 
-        <<enumdoc ::projectlib::etraining>>
+        <enumdoc ::projectlib::etraining>
     } -tags {create update multi}
 
     attribute base_personnel "Base Personnel" {
@@ -236,13 +236,13 @@ object group_frc {
 }
 
 page /object/group frc "Force Group" {
-    <<sotitle>>
+    <sotitle>
 
-    <<group_frc overview>><p>
+    <group_frc overview><p>
 
     Force groups have the following attributes:<p>
 
-    <<group_frc parmlist>>
+    <group_frc parmlist>
 }
 
 #-----------------------------------------------------------------------
@@ -252,21 +252,21 @@ object group_org {
     noun "organization group"
 
     overview {
-        An <i>organization <<term group>></i> is an organization that
+        An <i>organization <term group></i> is an organization that
         performs work (especially humanitarian relief) in the
-        <<term playbox>>.  Organization groups include Non-Governmental
+        <term playbox>.  Organization groups include Non-Governmental
         Organizations (NGOs) such as the Red Cross, Inter-Governmental
         Organizations (IGOs) such as UNESCO, and contractors such as
         Haliburton.  Organization groups are owned by
-        <<term actor>>s, who may use them to achieve their
+        <term actor>s, who may use them to achieve their
         goals.<p>
 
         Organization groups are created on the
-        <<tab Social/OrgGroups>> using the
-        <<cref /order/orggroup>>.
+        <tab Social/OrgGroups> using the
+        <cref /order/orggroup>.
         In order to work, organization group
         personnel must be deployed to neighborhoods and assigned
-        duties using <<term tactic>>s.<p>
+        duties using <term tactic>s.<p>
     }
 
     include group_ -attrs g        -tags create
@@ -274,7 +274,7 @@ object group_org {
 
     attribute a "Owning Actor" {
         The group's owning actor.  This parameter may remain unset during
-        <<term prep>>, but must be specified before time can be
+        <term prep>, but must be specified before time can be
         advanced.
     } -tags {create update multi}
 
@@ -284,7 +284,7 @@ object group_org {
     attribute orgtype "Organization Type" {
         The organization type<p>
 
-        <<enumdoc ::projectlib::eorgtype>>
+        <enumdoc ::projectlib::eorgtype>
     } -tags {create update multi}
 
     attribute base_personnel "Base Personnel" {
@@ -305,13 +305,13 @@ object group_org {
 }
 
 page /object/group org "Organization Group" {
-    <<sotitle>>
+    <sotitle>
 
-    <<group_org overview>><p>
+    <group_org overview><p>
 
     Organization groups have the following attributes:<p>
 
-    <<group_org parmlist>>
+    <group_org parmlist>
 }
 
 
