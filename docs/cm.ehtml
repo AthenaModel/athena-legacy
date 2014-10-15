@@ -27,6 +27,17 @@
         </td>
         [/tr]
     }
+
+    # XREFs
+
+    xrefset github-athena "athena" \
+        https://github.jpl.nasa.gov/Athena/athena
+    xrefset github-mars "mars" \
+        https://github.jpl.nasa.gov/Athena/mars
+    xrefset github-kite "kite" \
+        https://github.jpl.nasa.gov/Athena/kite
+    xrefset github-boxkite "boxkite" \
+        https://github.jpl.nasa.gov/Athena/boxkite
 }>
 
 
@@ -41,6 +52,10 @@
 <preface changelog "Change Log">
 
 <changelog>
+
+<change 10/15/2014 Update will>
+GitHub4Enterprise Changes.
+</change>
 
 <change 8/11/2014 Update will>
 Removed test step for athena_ingest(1).
@@ -83,46 +98,82 @@ Initial Draft
 
 <section overview "Overview">
 
-Athena uses uses Subversion for version control, and Bugzilla for
-package tracking.  This document describes how this works out in
-practice.<p>
+Athena uses uses <link http://git-scm.com/ Git> for version control, 
+hosted at <link https://github.jpl.nasa.gov/Athena/athena-sim>, and 
+GitHub's Issue Tracker for issue tracking.  This document describes how 
+this works out in practice.<p>
+
+<section overview.github "Athena at GitHub">
+
+Athena and related projects are hosted at JPL's
+<link https://github.jpl.nasa.gov "GitHub4Enterprise"> server.  They are
+owned by the 
+<link "Athena organization" https://github.jpl.nasa.gov/Athena>.  The
+specific repositories are as follows:<p>
+
+<topiclist>
+
+<topic {<xref github-athena>}>
+The Athena Simulation and related tools.
+</topic>
+
+<topic {<xref github-mars>}>
+The Mars Simulation Infrastructure Library, Athena's infrastructure
+layer.
+</topic>
+
+<topic {<xref github-kite>}>
+The Kite project automatation tool and related libraries.
+</topic>
+
+<topic {<xref github-boxkite>}>
+The Boxkite server client, used to save and retrieve documents and
+software releases.
+</topic>
+
+</topiclist>
+
+<section overview.kite "Kite Project Automation Tool">
+
+Kite is a project automation tool for TCL/TK projects.  Kite is used
+to automate Athena builds (among other things), and it provides 
+infrastructure libraries used by Athena as Kite external dependencies.<p>
 
 <section overview.mars "Mars Simulation Infrastructure Library">
 
 Athena relies on a number of Tcl packages and extensions which are
-contained in the Mars Simulation Infrastructure Library.  This
-document explains how Athena uses Subversion to access Mars.<p>
+contained in the Mars Simulation Infrastructure Library.  Athena 
+accesses them as Kite external dependencies.<p>
+
+<section overview.boxkite "Boxkite Server Client">
+
+The Athena project maintains a barebones "Boxkite" server at
+<link https://pepper.jpl.nasa.gov/kite>.  This server is a place where
+we put project documents in binary formats, as well as official builds of
+Kite projects such as Kite, Mars, and Boxkite.  The <tt boxkite> tool
+is used to push files to the server, to query the server, and to pull files
+from the server.<p>
 
 <section overview.numbering "Athena Version Numbering">
 
 At any given time, the Athena development team is working towards a 
-particular version <i>x.y.z</i>, e.g., "6.2.0", where <i>x</i>
+particular version <i>x.y.z</i>, e.g., "6.3.1", where <i>x</i>
 is the major release number, <i>y</i> is the minor release number, and
 <i>z</i> is the patch level.  The value of <i>x.y</i> is incremented at
 the beginning of each development cycle.  The value of <i>z</i> is 
-initially 0, and is incremented for future development each time a 
-version is made available to those outside the development.<p>
+initially 1, and is incremented on each formal release.<p>
 
-For example, a new development might begin working on version 
-6.2.0.  After some number of builds, that version is released, and work
-begins on version 6.2.1.  The project might make several versions 
-of Athena 6.2 available to the sponsor; these would be 6.2.0, 6.2.1, 6.2.2, 
-and so on.<p>
+During development, the version number is augmented with an "a" number for 
+each build.  The first build is "6.3.1a0", the next is "6.3.1a1", and so
+forth.  Release candidates can simply continue this numbering, or move on
+to the "b" numbers: "6.3.1b0", "6.3.1b2", and so on.<p>
 
-Then, a new development cycle would begin with version 6.3.0.<p>
+When the release candidate checks out, a new build is done in which the
+only change is to drop the "a" or "b" component from the version number, 
+i.e., from "6.3.1b2" to "6.3.1".  And then, immediately after the release,
+the version number is bumped to "6.3.2a0".<p>
 
-In addition to version numbers, the project also tracks official build 
-numbers, which are associated with the "x.y" independent of the ".z".  
-Development builds, which take place on the trunk, are numbered 
-"B1", "B2", "B3", and so on.  Release builds, which take place on 
-release branches, are numbered "R1", "R2", "R3", and so on.<p>
-
-The full version specification for any build is thus "<i>x.y.z</i>-B<i>n</i>"
-(for development and engineering builds) or "<i>x.y.z.</i>-R<i>n</i>"
-for release builds.  Note however, that any build released outside the
-team will necessarily have its own unique <i>x.y.z</i>.  To put it
-another way, if Athena 6.4.2-B7 is given to the sponsor as an engineering
-build, then B8 of Athena 6.4 will be necessarily be Athena 6.4.3-B8.<p>
+The version number is set in the <tt project.kite> file.<p>
 
 <section overview.tree "Project Tree">
 
@@ -130,33 +181,25 @@ The project directory tree is as follows:<p>
 
 <table tab.tree "Project Directory Tree">
 
-<treedir (root)/       > Root of project tree</treedir>
-<treedir +bin/         > Executables (both binaries and scripts)</treedir>
-<treedir ++athena.tcl  > <xref athena(1)> launcher source code</treedir>
-<treedir ++athena      > <xref athena(1)> binary</treedir>
-<treedir ++athena_test > <xref athena_test(1)> application test
-                           suite.</treedir>
-<treedir +docs/        > Project documentation</treedir>
-<treedir ++dev/        > Miscellaneous development documentation</treedir>
-<treedir ++man1/       > Man page section (1): Executables</treedir>
-<treedir ++man5/       > Man page section (5): File Formats</treedir>
-<treedir ++mann/       > Man page section (n): Tcl Commands</treedir>
-<treedir ++mani/       > Man page section (i): Tcl Interfaces</treedir>
-<treedir ++mansim/     > Man page section (sim): <xref athena_sim(1)>
-                           internals.</treedir>
-<treedir +lib/         > Tcl Libraries </treedir>
-<treedir ++(name)/     > Tcl source code for package
-                           <i>name</i></treedir>
-<treedir ++app_(name)/ > Tcl source code for <xref athena(1)> application
-                           athena_<i>name</i></treedir>
-<treedir +mars/...     > Mars Simulation Infrastructure Library</treedir>
-<treedir +src/         > C/C++ source directory</treedir>
-<treedir ++lib(name)/  > C/C++ source code for library
-                           lib<i>name</i>.a</treedir>
-<treedir +test/        > Top-level test directory</treedir>
-<treedir ++(name)/     > Test code for application <i>name</i>.</treedir>
-<treedir +tools/       > Tools directory</treedir>
-<treedir ++basekits/   > Tcl/Tk basekits</treedir>
+<treedir athena/       >  Root of project tree</treedir>
+<treedir +project.kite >  Kite project file</treedir>
+<treedir +bin/         >  Executables (both binaries and scripts)</treedir>
+<treedir ++(app).tcl   >  Application launcher script</treedir>
+<treedir ++(app).kit   >  Application starkit</treedir>
+<treedir ++(app)-(version)-(platform){.exe} > Application binary</treedir>
+<treedir +data/        >  Test data directory, for delivered test data
+<treedir +docs/        >  Project documentation</treedir>
+<treedir ++man1/       >  Man page section (1): Executables</treedir>
+<treedir ++man5/       >  Man page section (5): File Formats</treedir>
+<treedir ++mann/       >  Man page section (n): Tcl Commands</treedir>
+<treedir ++mani/       >  Man page section (i): Tcl Interfaces</treedir>
+<treedir +installer/   >  Athena Windows Installer source</treedir>
+<treedir +lib/         >  Tcl Library Source </treedir>
+<treedir ++(name)/     >  Tcl source for library package <i>name</i></treedir>
+<treedir ++app_(name)/ >  Tcl source code for application <i>name</i></treedir>
+<treedir +test/        >  Top-level test directory</treedir>
+<treedir ++(name)/     >  Test code for library package <i>name</i>.</treedir>
+<treedir ++app_(name)/ >  Test code for application <i>name</i>.</treedir>
 </table>
 
 <b>Notes:</b><p>
