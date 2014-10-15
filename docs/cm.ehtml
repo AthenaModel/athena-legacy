@@ -788,13 +788,14 @@ $ git commit -m "Set version number in installer file"
 
 <step>
 At this point we have a clean build with no errors, and all changes
-have been comitted and synced to <xref github-athena>.  Go to
+have been committed and synced to <xref github-athena>.  Go to
 <xref github-athena> and create a new "release" with tag
 "v6.3.1a5"
 </step/>
 <ol>
 <li> Verify that all changes have truly been synced.
 <li> Click on "Releases".
+<li> Select the branch, either <b master> or the release branch.
 <li> Enter "v6.3.1a5" as the tag.
 <li> Enter "Athena v6.3.1a5" as the release name.
 <li> Create the release.  The repository now has a tag for the build.
@@ -839,6 +840,7 @@ following 6.3.1a5 would usually be 6.3.1a6, but might be
 $ cd ~/github/athena
 $ vim project.kite
 $ kite info
+$ git commit -m "Updated working version"
 </pre>
 </step>
 </procedure>
